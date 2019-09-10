@@ -129,8 +129,8 @@ MORSECODE:
       signalLength = 0
       timeBtwnSignal = 0
       DO WHILE MorseButton = 1
-        PAUSE 5
-        signalLength = signalLength + 5
+        PAUSE 1
+        signalLength = signalLength + 1
       LOOP
       state = 2
     ELSEIF state = 2 THEN ' Calculate dot or dash
@@ -149,12 +149,13 @@ MORSECODE:
       ELSE
         state = 0
       ENDIF
-    ELSEIF state = 3 THEN
+    ELSEIF state = 3 THEN ' Wait for start of next signal, if too late decode letter
       DEBUG "state = 3", CR
       DO
-        PAUSE 5
-        timeBtwnSignal = timeBtwnSignal + 5
+        PAUSE 1
+        timeBtwnSignal = timeBtwnSignal + 1
       LOOP UNTIL MorseButton = 1
+
       IF timeBtwnSignal > 1000 THEN ' End of letter
         FOR idx = 0 TO 36
           IF idx = 36 THEN
