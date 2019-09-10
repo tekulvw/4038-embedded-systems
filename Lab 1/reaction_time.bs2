@@ -1,0 +1,184 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+Setup:
+  ' Reaction Time
+  ReactButton PIN 12
+  ReactRed PIN 13
+  ReactYellow PIN 14
+  ReactGreen PIN 15
+
+  INPUT ReactButton
+  OUTPUT ReactRed
+  OUTPUT ReactYellow
+  OUTPUT ReactGreen
+
+  MorseButton PIN 0
+
+  INPUT MorseButton
+
+  MorseCodes DATA %10, %111, %101, %11, %1, %1101, %1, %1111, %11, %1000, %10, %1011, %0, %1, %0, %1001, %10, %101, %111, %0, %110, %1110, %100, %110, %100, %11
+  MorseSize DATA    2,    4,    4,   3,  1,     4,  3,     4,   2,     4,   3,     4,  2,  2,  3,     4,   4,    3,    3,  1,    3,     4,    3,    4,    4,   4
+  MorseCharOffset CON 65
+
+  MAXINT CON 65535
+
+Main:
+  IF IN12 THEN
+    GOTO REACTIONTIME
+  ELSE
+    GOTO MORSECODE
+  ENDIF
+
+REACTIONTIME:
+  DEBUG "Starting Reaction Time Experiment", CR
+
+  ' State 0: SETUP, wait for button to be released
+  '   ALL LEDS turn off
+  ' State 1: Wait for Start
+  '   On button press, turn on red LED and timer for green LED
+  ' State 2: Run timer
+  '   Run to timer end (between 2 and 7 sec)
+  ' State 3: Start reaction timer
+  '   Turn green LED ON, start timer
+  state VAR Nib
+  state = 0
+
+  sleepTimer VAR Word ' Count of 10s of ms
+  sleepTimer = 0
+
+  sleepTarget VAR Word ' Count of 10s of ms
+  sleepTarget = 0
+
+  reactTimer VAR Word ' Count of 10s of ms
+  reactTimer = 0
+
+  randomValue VAR Word
+
+  DO
+    IF state = 0  THEN
+      sleepTimer = 0
+      reactTimer = 0
+      HIGH ReactYellow
+      IF IN12 = 0 THEN
+        state = 1
+      ENDIF
+    ELSEIF state = 1 THEN
+      IF IN12 = 1 THEN
+        LOW ReactYellow
+        HIGH ReactRed
+        RANDOM randomValue
+        DEBUG "rando sleep target: "
+        DEBUG DEC randomValue, CR
+        sleepTarget = (randomValue / 8192) * 1000
+        DEBUG "sleep timer: "
+        DEBUG DEC sleepTarget, "ms", CR
+        state = 2
+      ENDIF
+    ELSEIF state = 2 THEN
+      IF sleepTimer >= sleepTarget THEN
+        LOW ReactRed
+        HIGH ReactGreen
+        state = 3
+      ELSE
+        PAUSE 10
+        sleepTimer = sleepTimer + 10
+      ENDIF
+    ELSEIF state = 3 THEN
+      IF IN12 = 1 THEN
+        LOW ReactGreen
+        HIGH ReactYellow
+        state = 4
+      ELSE
+        PAUSE 10
+        reactTimer = reactTimer + 10
+      ENDIF
+    ELSEIF state = 4 THEN
+      DEBUG "You took some time (div by 100 to get seconds):", CR
+      DEBUG DEC reactTimer, CR
+      state = 0
+    ENDIF
+  LOOP
+
+MORSECODE:
+  DEBUG "Starting Morse Code Decoder", CR
+
+  signalLength VAR Word
+  signalLength = 0
+
+  idx VAR Byte
+  readCode VAR Byte
+  readSize VAR Byte
+
+  timeBtwnSignal VAR Word
+  timeBtwnSignal = 0
+
+  character VAR Byte
+  charSize VAR Nib
+
+  DO
+    IF state = 0 THEN ' Initialize
+      DEBUG "state = 0", CR
+      character = 0
+      charSize = 0
+      DO WHILE MorseButton = 0
+      LOOP
+      state = 1
+    ELSEIF state = 1 THEN ' Wait for high button
+      DEBUG "state = 1", CR
+      signalLength = 0
+      timeBtwnSignal = 0
+      DO WHILE MorseButton = 1
+        PAUSE 5
+        signalLength = signalLength + 5
+      LOOP
+      state = 2
+    ELSEIF state = 2 THEN ' Calculate dot or dash
+      DEBUG "state = 2", CR
+      IF signalLength > 5 THEN
+        IF signalLength > 700 THEN ' Dash
+          character = character << 1
+          DEBUG "Got dash", CR
+        ELSE ' Dot
+          character = character << 1
+          character = character + 1
+          DEBUG "Got dot", CR
+        ENDIF
+        charSize = charSize + 1
+        state = 3
+      ELSE
+        state = 0
+      ENDIF
+    ELSEIF state = 3 THEN
+      DEBUG "state = 3", CR
+      DO
+        PAUSE 5
+        timeBtwnSignal = timeBtwnSignal + 5
+      LOOP UNTIL MorseButton = 1
+      IF timeBtwnSignal > 1000 THEN ' End of letter
+        FOR idx = 0 TO 36
+          IF idx = 36 THEN
+             DEBUG "no char found: "
+             DEBUG BIN character, " size: "
+             DEBUG DEC charSize, CR
+          ELSE
+             READ (MorseCodes + idx), readCode
+             READ (MorseSize + idx), readSize
+             IF (character = readCode) AND (charSize = readSize) THEN
+                DEBUG "idx: "
+                DEBUG DEC idx
+                DEBUG " raw: "
+                DEBUG BIN character, " size: "
+                DEBUG DEC charSize, " ascii: "
+                DEBUG MorseCharOffset + idx, CR
+                GOTO BREAK1
+             ENDIF
+          ENDIF
+        NEXT
+        BREAK1:
+        state = 0
+      ELSE
+        state = 1
+      ENDIF
+    ENDIF
+  LOOP
