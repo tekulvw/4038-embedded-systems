@@ -26,11 +26,7 @@ Setup:
   MAXINT CON 65535
 
 Main:
-  IF IN12 THEN
-    GOTO REACTIONTIME
-  ELSE
-    GOTO MORSECODE
-  ENDIF
+
 
 REACTIONTIME:
   DEBUG "Starting Reaction Time Experiment", CR
@@ -59,6 +55,8 @@ REACTIONTIME:
   reactCount = 0
 
   randomValue VAR Word
+
+  idx VAR Byte
 
   DO
     IF state = 0  THEN
@@ -92,7 +90,7 @@ REACTIONTIME:
         sleepTimer = sleepTimer + 10
       ENDIF
     ELSEIF state = 3 THEN
-      IF IN12 = 1 THEN
+      IF IN12 = 0 THEN
         LOW ReactGreen
         HIGH ReactYellow
         state = 4
@@ -114,89 +112,5 @@ REACTIONTIME:
       DEBUG DEC reactTimer / 5, CR
       reactCount = 0
       state = 0
-    ENDIF
-  LOOP
-
-MORSECODE:
-  DEBUG "Starting Morse Code Decoder", CR
-
-  signalLength VAR Word
-  signalLength = 0
-
-  idx VAR Byte
-  readCode VAR Byte
-  readSize VAR Byte
-
-  timeBtwnSignal VAR Word
-  timeBtwnSignal = 0
-
-  character VAR Byte
-  charSize VAR Nib
-
-  DO
-    IF state = 0 THEN ' Initialize
-      DEBUG "state = 0", CR
-      character = 0
-      charSize = 0
-      DO WHILE MorseButton = 0
-      LOOP
-      state = 1
-    ELSEIF state = 1 THEN ' Wait for high button
-      DEBUG "state = 1", CR
-      signalLength = 0
-      timeBtwnSignal = 0
-      DO WHILE MorseButton = 1
-        PAUSE 1
-        signalLength = signalLength + 1
-      LOOP
-      state = 2
-    ELSEIF state = 2 THEN ' Calculate dot or dash
-      DEBUG "state = 2", CR
-      IF signalLength > 5 THEN
-        IF signalLength > 700 THEN ' Dash
-          character = character << 1
-          DEBUG "Got dash", CR
-        ELSE ' Dot
-          character = character << 1
-          character = character + 1
-          DEBUG "Got dot", CR
-        ENDIF
-        charSize = charSize + 1
-        state = 3
-      ELSE
-        state = 0
-      ENDIF
-    ELSEIF state = 3 THEN ' Wait for start of next signal, if too late decode letter
-      DEBUG "state = 3", CR
-      DO
-        PAUSE 1
-        timeBtwnSignal = timeBtwnSignal + 1
-      LOOP UNTIL MorseButton = 1
-
-      IF timeBtwnSignal > 1000 THEN ' End of letter
-        FOR idx = 0 TO 36
-          IF idx = 36 THEN
-             DEBUG "no char found: "
-             DEBUG BIN character, " size: "
-             DEBUG DEC charSize, CR
-          ELSE
-             READ (MorseCodes + idx), readCode
-             READ (MorseSize + idx), readSize
-             IF (character = readCode) AND (charSize = readSize) THEN
-                DEBUG "idx: "
-                DEBUG DEC idx
-                DEBUG " raw: "
-                DEBUG BIN character, " size: "
-                DEBUG DEC charSize, " ascii: "
-                DEBUG MorseCharOffset + idx, CR
-                GOTO BREAK1
-             ENDIF
-          ENDIF
-        NEXT
-        BREAK1:
-        state = 0
-      ELSE
-        state = 1
-      ENDIF
     ENDIF
   LOOP
