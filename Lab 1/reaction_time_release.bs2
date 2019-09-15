@@ -1,0 +1,103 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+Setup:
+  ' Reaction Time
+  ReactButton PIN 12
+  ReactRed PIN 13
+  ReactYellow PIN 14
+  ReactGreen PIN 15
+
+  INPUT ReactButton
+  OUTPUT ReactRed
+  OUTPUT ReactYellow
+  OUTPUT ReactGreen
+
+  ReactionRecord DATA @5
+
+REACTIONTIME:
+  DEBUG "Starting Reaction Time Experiment", CR
+
+  ' State 0: SETUP, wait for button to be released
+  '   ALL LEDS turn off
+  ' State 1: Wait for Start
+  '   On button press, turn on red LED and timer for green LED
+  ' State 2: Run timer
+  '   Run to timer end (between 2 and 7 sec)
+  ' State 3: Start reaction timer
+  '   Turn green LED ON, start timer
+  state VAR Nib
+  state = 0
+
+  sleepTimer VAR Word ' Count of 10s of ms
+  sleepTimer = 0
+
+  sleepTarget VAR Word ' Count of 10s of ms
+  sleepTarget = 0
+
+  reactTimer VAR Word ' Count of 10s of ms
+  reactTimer = 0
+
+  reactCount VAR Nib
+  reactCount = 0
+
+  randomValue VAR Word
+
+  idx VAR Byte
+
+  DO
+    IF state = 0  THEN
+      sleepTimer = 0
+      reactTimer = 0
+      HIGH ReactYellow
+      IF IN12 = 0 THEN
+        state = 1
+      ENDIF
+    ELSEIF state = 1 THEN
+      IF reactCount = 5 THEN
+        state = 5
+      ELSEIF IN12 = 1 THEN
+        LOW ReactYellow
+        HIGH ReactRed
+        RANDOM randomValue
+        DEBUG "rando sleep target: "
+        DEBUG DEC randomValue, CR
+        sleepTarget = (randomValue / 8192) * 1000
+        DEBUG "sleep timer: "
+        DEBUG DEC sleepTarget, "ms", CR
+        state = 2
+      ENDIF
+    ELSEIF state = 2 THEN
+      IF sleepTimer >= sleepTarget THEN
+        LOW ReactRed
+        HIGH ReactGreen
+        state = 3
+      ELSE
+        PAUSE 10
+        sleepTimer = sleepTimer + 10
+      ENDIF
+    ELSEIF state = 3 THEN
+      IF IN12 = 0 THEN
+        LOW ReactGreen
+        HIGH ReactYellow
+        state = 4
+      ELSE
+        PAUSE 10
+        reactTimer = reactTimer + 10
+      ENDIF
+    ELSEIF state = 4 THEN
+        WRITE ReactionRecord + reactCount, reactTimer
+        reactCount = reactCount + 1
+        state = 0
+    ELSEIF state = 5 THEN
+      reactTimer = 0
+      FOR idx = 0 TO 4
+        READ ReactionRecord + idx, sleepTimer
+        reactTimer = reactTimer + sleepTimer
+      NEXT
+      DEBUG "Avg Reaction time (div by 100 to get seconds):",CR
+      DEBUG DEC reactTimer / 5, CR
+      reactCount = 0
+      state = 0
+    ENDIF
+  LOOP
