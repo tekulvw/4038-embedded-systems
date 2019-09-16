@@ -18,14 +18,6 @@ Setup:
 REACTIONTIME:
   DEBUG "Starting Reaction Time Experiment", CR
 
-  ' State 0: SETUP, wait for button to be released
-  '   ALL LEDS turn off
-  ' State 1: Wait for Start
-  '   On button press, turn on red LED and timer for green LED
-  ' State 2: Run timer
-  '   Run to timer end (between 2 and 7 sec)
-  ' State 3: Start reaction timer
-  '   Turn green LED ON, start timer
   state VAR Nib
   state = 0
 
@@ -46,14 +38,14 @@ REACTIONTIME:
   idx VAR Byte
 
   DO
-    IF state = 0  THEN
+    IF state = 0  THEN ' Initialization
       sleepTimer = 0
       reactTimer = 0
       HIGH ReactYellow
       IF IN12 = 0 THEN
         state = 1
       ENDIF
-    ELSEIF state = 1 THEN
+    ELSEIF state = 1 THEN ' Skip to display if we have 5 results, otherwise wait for button press and calculate sleep time
       IF reactCount = 5 THEN
         state = 5
       ELSEIF IN12 = 1 THEN
@@ -67,7 +59,7 @@ REACTIONTIME:
         DEBUG DEC sleepTarget, "ms", CR
         state = 2
       ENDIF
-    ELSEIF state = 2 THEN
+    ELSEIF state = 2 THEN ' Sleep for targeted time, turn green light on when reached
       IF sleepTimer >= sleepTarget THEN
         LOW ReactRed
         HIGH ReactGreen
@@ -76,7 +68,7 @@ REACTIONTIME:
         PAUSE 10
         sleepTimer = sleepTimer + 10
       ENDIF
-    ELSEIF state = 3 THEN
+    ELSEIF state = 3 THEN ' Wait for button RELEASE, record reaction time
       IF IN12 = 0 THEN
         LOW ReactGreen
         HIGH ReactYellow
@@ -85,11 +77,11 @@ REACTIONTIME:
         PAUSE 10
         reactTimer = reactTimer + 10
       ENDIF
-    ELSEIF state = 4 THEN
+    ELSEIF state = 4 THEN ' Store reaction time in EEPROM, increment test counter
         WRITE ReactionRecord + reactCount, reactTimer
         reactCount = reactCount + 1
         state = 0
-    ELSEIF state = 5 THEN
+    ELSEIF state = 5 THEN ' Display averaged result  
       reactTimer = 0
       FOR idx = 0 TO 4
         READ ReactionRecord + idx, sleepTimer
