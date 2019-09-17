@@ -1,0 +1,67 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+ServoPin PIN 14
+StopSignal PIN 1
+INPUT StopSignal
+
+minPulseWidth CON 190
+maxPulseWidth CON 1100
+
+seekDelay CON 500
+seekInterval CON 10
+
+seekCounter VAR Word
+
+state VAR Nib
+state = 1
+
+pulseWidth VAR Word
+
+DO
+BREAK1:
+  IF state = 0 THEN
+    DEBUG "state 0", CR
+    state = 1
+  ELSEIF state = 1 THEN
+    DEBUG "state 1", CR
+    seekCounter = 0
+    FOR pulseWidth = minPulseWidth TO maxPulseWidth STEP seekInterval
+      DO
+        DEBUG DEC StopSignal, CR
+        PULSOUT ServoPin, pulseWidth
+        PAUSE 10
+        seekCounter = seekCounter + 10
+      LOOP WHILE (StopSignal = 0 AND seekCounter <= seekDelay)
+
+      IF StopSignal = 1 THEN
+        state = 3
+        GOTO BREAK1
+      ENDIF
+    NEXT
+    state = 2
+  ELSEIF state = 2 THEN
+    DEBUG "state 2", CR
+    seekCounter = 0
+    FOR pulseWidth = maxPulseWidth TO minPulseWidth STEP seekInterval
+      DO
+        DEBUG DEC StopSignal, CR
+        PULSOUT ServoPin, pulseWidth
+        PAUSE 10
+        seekCounter = seekCounter + 10
+      LOOP WHILE (StopSignal = 0 AND seekCounter <= seekDelay)
+
+      IF StopSignal = 1 THEN
+        state = 3
+        GOTO BREAK1
+      ENDIF
+    NEXT
+    state = 1
+  ELSEIF state = 3 THEN
+    DEBUG "state 3", CR
+    DO
+      PULSOUT ServoPin, pulseWidth
+    LOOP WHILE StopSignal = 1
+    state = 0
+  ENDIF
+LOOP
