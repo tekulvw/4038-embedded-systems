@@ -28,9 +28,8 @@ BREAK1:
     seekCounter = 0
     FOR pulseWidth = minPulseWidth TO maxPulseWidth STEP seekInterval
       DO
-        DEBUG DEC StopSignal, CR
         PULSOUT ServoPin, pulseWidth
-        PAUSE 10
+        PAUSE 20
         seekCounter = seekCounter + 10
       LOOP WHILE (StopSignal = 0 AND seekCounter <= seekDelay)
 
@@ -45,9 +44,8 @@ BREAK1:
     seekCounter = 0
     FOR pulseWidth = maxPulseWidth TO minPulseWidth STEP seekInterval
       DO
-        DEBUG DEC StopSignal, CR
         PULSOUT ServoPin, pulseWidth
-        PAUSE 10
+        PAUSE 20
         seekCounter = seekCounter + 10
       LOOP WHILE (StopSignal = 0 AND seekCounter <= seekDelay)
 
