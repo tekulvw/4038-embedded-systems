@@ -59,7 +59,15 @@ BREAK1:
     DEBUG "state 3", CR
     DO
       PULSOUT ServoPin, pulseWidth
-    LOOP WHILE StopSignal = 1
-    state = 0
+      PAUSE 20
+      IF StopSignal = 1 THEN
+        seekCounter = 0
+      ELSEIF seekCounter >= 250 THEN
+        state = 0
+        GOTO BREAK1
+      ELSE
+        seekCounter = seekCounter + 20
+      ENDIF
+    LOOP
   ENDIF
 LOOP
