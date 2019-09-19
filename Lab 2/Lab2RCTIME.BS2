@@ -1,0 +1,27 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+Servo_pin PIN 14
+Stop_pin PIN 0
+Pulse_time VAR Word
+Servo_position VAR Word
+
+
+PAUSE 1000
+
+
+DO
+  IF Stop_pin <> 0 THEN
+    PULSOUT Servo_pin, 1100
+    Servo_position = Servo_pin
+    PAUSE 10
+  ELSEIF Servo_pin = 1100 then
+    PULSOUT Servo_pin, 192
+    Servo_position = Servo_pin
+    PAUSE 10
+  ENDIF
+    Stop_pin = 0
+    PULSOUT Servo_pin, Servo_position
+
+
+LOOP
