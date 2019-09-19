@@ -1,0 +1,24 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+rcPin PIN 7
+servoPin PIN 14
+
+scaleFactor CON 684
+delay CON 10
+offset CON 100
+
+time VAR Word
+
+PAUSE 1000
+
+DO
+  HIGH rcPin
+  PAUSE delay
+  RCTIME rcPin, 1, time
+  time = time - 1
+  time = time */ scaleFactor
+  time = time + offset
+  PULSOUT servoPin, time
+  DEBUG HOME, DEC5 time
+LOOP
