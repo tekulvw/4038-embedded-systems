@@ -5,12 +5,12 @@ rcPin PIN 7
 servoPin PIN 14
 
 scaleFactor CON 684
-delay CON 10
+delay CON 20
 offset CON 100
 
 time VAR Word
 
-PAUSE 1000
+
 
 DO
   HIGH rcPin
