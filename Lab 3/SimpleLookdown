@@ -1,0 +1,24 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+value VAR Byte
+index VAR Nib
+
+value = 167
+PAUSE 1000
+DEBUG ? value
+
+LOOKDOWN value, [7, 85, 19, 167, 28], index
+
+DEBUG ? index, CR
+
+DEBUG "Change the value variable to a ", CR,
+      "differenct number in this list:", CR,
+      "7, 85, 19, 167, or 28.", CR, CR,
+
+      "Run the modified program and ", CR,
+      "check to see what number the ", CR,
+      "LOOKDOWN command places in the ", CR,
+      "index variable."
+
+END
