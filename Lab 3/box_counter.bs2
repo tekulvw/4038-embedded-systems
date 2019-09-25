@@ -1,0 +1,131 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+Init:
+  PhotoResistor PIN 2
+  JamIndicator PIN 3
+  OUTPUT JamIndicator
+  JamReset PIN 4
+  INPUT JamReset
+
+  MinReading CON 100
+  MaxReading CON 4000
+
+  rawReading VAR Word
+
+  BoxPresent VAR Bit
+  BoxPresentDuration VAR Byte
+
+  BoxCounts DATA (10) ' Reserve 10 bytes for 5 x 16 bit words
+  ShiftTimer DATA (2) ' Reserve 1 word for shift timer in seconds
+
+  tmpBoxType VAR Nib ' 0 = 10cm
+                     ' 1 = 20cm
+                     ' 2 = 30cm
+                     ' 3 = 40cm
+                     ' 4 = Invalid size
+                     ' 5 = Jam
+  tmpCounter VAR Word
+
+  PauseDuration VAR Byte
+  minorPauseCounter VAR Word
+
+  state VAR Nib
+
+Main:
+  DO
+    IF state = 0 THEN ' Initialize
+      LOW JamIndicator
+      BoxPresentDuration = 0
+      state = 1
+    ELSEIF state = 1 THEN ' Wait for box
+      GOSUB CheckBoxPresent
+      IF BoxPresent = 1 THEN
+        BoxPresentDuration = 0
+        state = 2
+      ELSEIF BoxPresentDuration > 11000 THEN
+        state = 15
+      ELSE
+        PAUSE 100
+        BoxPresentDuration = BoxPresentDuration + 100
+      ENDIF
+    ELSEIF state = 2 THEN ' Time box duration
+      PAUSE 100
+      BoxPresentDuration = BoxPresentDuration + 100
+      GOSUB CheckBoxPresent ' This burns a few ms
+      IF BoxPresent = 0 THEN
+        state = 3
+      ELSEIF BoxPresentDuration > 5000 THEN
+        state = 15
+      ENDIF
+    ELSEIF state = 3 THEN ' Box detection ended, categorize and add count
+      GOSUB CategorizeBox
+      GOSUB AddBoxCount
+    ELSEIF state = 15 THEN ' Error: JAM
+      HIGH JamIndicator
+      PAUSE 50
+      IF JamReset = 1 THEN
+        state = 0
+      ENDIF
+      LOW JamIndicator
+      PAUSE 50
+      IF JamReset = 1 THEN
+        state = 0
+      ENDIF
+      IF state = 0 THEN
+        tmpBoxType = 5
+        GOSUB AddBoxCount
+      ENDIF
+    ENDIF
+  LOOP
+
+GetRCTime:
+  HIGH 2
+  PAUSE 3
+  RCTIME PhotoResistor, 1, rawReading
+RETURN
+
+CheckBoxPresent:
+  GOSUB GetRCTime
+  IF rawReading > (MaxReading - MinReading) / 4 * 3 THEN
+    BoxPresent = 0
+  ELSEIF rawReading < (MaxReading - MinReading) / 4 THEN
+    BoxPresent = 1
+  ENDIF
+RETURN
+
+CategorizeBox:
+  IF BoxPresentDuration > 900 AND BoxPresentDuration < 1100 THEN
+    tmpBoxType = 0
+  ELSEIF BoxPresentDuration > 1900 AND BoxPresentDuration < 2100 THEN
+    tmpBoxType = 1
+  ELSEIF BoxPresentDuration > 2900 AND BoxPresentDuration < 3100 THEN
+    tmpBoxType = 2
+  ELSEIF BoxPresentDuration > 3900 AND BoxPresentDuration < 4100 THEN
+    tmpBoxType = 3
+  ELSE
+    tmpBoxType = 4
+  ENDIF
+RETURN
+
+AddBoxCount:
+  READ BoxCounts + tmpBoxType, Word tmpCounter
+  WRITE BoxCounts + tmpBoxType, Word tmpCounter + 1
+RETURN
+
+PauseAndRecord:
+  READ ShiftTimer, Word tmpCounter
+  PAUSE PauseDuration
+  IF PauseDuration < 1000 THEN
+    minorPauseCounter = minorPauseCounter + PauseDuration
+  ELSE
+    minorPauseCounter = minorPauseCounter + (PauseDuration // 1000)
+    tmpCounter = tmpCounter + (PauseDuration / 1000)
+  ENDIF
+
+  IF minorPauseCounter > 1000 THEN
+    tmpCounter = tmpCounter + (minorPauseCounter / 1000)
+    minorPauseCounter = minorPauseCounter // 1000
+  ENDIF
+
+  WRITE ShiftTimer, Word tmpCounter
