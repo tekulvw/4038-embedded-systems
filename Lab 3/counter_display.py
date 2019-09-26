@@ -12,7 +12,7 @@ ax = fig.add_subplot(1, 1, 1)
 xs = []
 ys = []
 
-COM_PORT = "COM3"
+COM_PORT = "/dev/ttyUSB0"
 ser = serial.Serial(COM_PORT, 9600, timeout=1)
 
 csvfile = open('output.csv', mode='w')
@@ -25,8 +25,14 @@ def animate(i, xs, ys):
         try:
             datum = ser.readline()
         except serial.SerialTimeoutException:
-            break
-        row = DataRow(datum.split(","))
+            continue
+        datum = str(datum, 'ascii')
+        print(datum)
+        vals = datum.split(",")
+        if len(vals) != 7:
+            continue
+
+        row = DataRow(*[int(v) for v in vals])
         csvwriter.writerow(row)
 
         if rows and row.shift_time < rows[-1].shift_time:
@@ -34,17 +40,18 @@ def animate(i, xs, ys):
             # prior to that reset.
             rows = []
         rows.append(row)
+        break
 
     shift_times = [row.shift_time for row in rows]
-    total_counts = [sum(row.count_10cm, row.count_20cm, row.count_30cm, row.count_40cm, row.count_invalid) for row in rows]
+    total_counts = [sum((row.count_10cm, row.count_20cm, row.count_30cm, row.count_40cm, row.count_invalid)) for row in rows]
 
-    if rows and rows[0].shift_time < ys[-1]:
+    if rows and ys and rows[0].shift_time < ys[-1]:
         # Again, if we see a shift time reset, drop all displayed data so far.
         xs = []
         ys = []
 
-    xs.extend(total_counts)
-    ys.extend(shift_times)
+    xs.extend(shift_times)
+    ys.extend(total_counts)
 
     # Draw x and y lists
     ax.clear()
