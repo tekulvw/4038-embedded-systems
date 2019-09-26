@@ -8,8 +8,15 @@ Init:
   JamReset PIN 4
   INPUT JamReset
 
-  MinReading CON 100
-  MaxReading CON 4000
+  MinReading CON 65
+  MaxReading CON 2800
+
+  Box10Time CON 1000
+  Box20Time CON 2000
+  Box30Time CON 3000
+  Box40Time CON 4000
+
+  Hysteresis CON 400
 
   ShiftTimeSec CON 28800
 
@@ -38,6 +45,7 @@ Init:
 Main:
   DO
     IF state = 0 THEN ' Initialize
+      DEBUG "state = 0", CR
       LOW JamIndicator
       BoxPresentDuration = 0
       READ ShiftTimer, Word tmpCounter
@@ -47,6 +55,7 @@ Main:
         state = 1
       ENDIF
     ELSEIF state = 1 THEN ' Wait for box
+      DEBUG "state = 1", CR
       GOSUB CheckBoxPresent
       IF BoxPresent = 1 THEN
         BoxPresentDuration = 0
@@ -59,8 +68,13 @@ Main:
         BoxPresentDuration = BoxPresentDuration + 100
       ENDIF
     ELSEIF state = 2 THEN ' Time box duration
+<<<<<<< Updated upstream
       PauseDuration = 100
       GOSUB PauseAndRecord
+=======
+      DEBUG "state = 2", CR
+      PAUSE 100
+>>>>>>> Stashed changes
       BoxPresentDuration = BoxPresentDuration + 100
       GOSUB CheckBoxPresent ' This burns a few ms
       IF BoxPresent = 0 THEN
@@ -69,6 +83,7 @@ Main:
         state = 15
       ENDIF
     ELSEIF state = 3 THEN ' Box detection ended, categorize and add count
+      DEBUG "state = 3", CR
       GOSUB CategorizeBox
       GOSUB AddBoxCount
       state = 4
@@ -115,13 +130,13 @@ CheckBoxPresent:
 RETURN
 
 CategorizeBox:
-  IF BoxPresentDuration > 900 AND BoxPresentDuration < 1100 THEN
+  IF BoxPresentDuration > (Box10Time - Hysteresis) AND BoxPresentDuration < (Box10Time + Hysteresis) THEN
     tmpBoxType = 0
-  ELSEIF BoxPresentDuration > 1900 AND BoxPresentDuration < 2100 THEN
+  ELSEIF BoxPresentDuration > (Box20Time - Hysteresis) AND BoxPresentDuration < (Box20Time + Hysteresis) THEN
     tmpBoxType = 1
-  ELSEIF BoxPresentDuration > 2900 AND BoxPresentDuration < 3100 THEN
+  ELSEIF BoxPresentDuration > (Box30Time - Hysteresis) AND BoxPresentDuration < (Box30Time + Hysteresis) THEN
     tmpBoxType = 2
-  ELSEIF BoxPresentDuration > 3900 AND BoxPresentDuration < 4100 THEN
+  ELSEIF BoxPresentDuration > (Box40Time - Hysteresis) AND BoxPresentDuration < (Box40Time + Hysteresis) THEN
     tmpBoxType = 3
   ELSE
     tmpBoxType = 4
@@ -129,6 +144,7 @@ CategorizeBox:
 RETURN
 
 AddBoxCount:
+  DEBUG "Adding box type ", DEC tmpBoxType, CR
   READ BoxCounts + tmpBoxType, Word tmpCounter
   WRITE BoxCounts + tmpBoxType, Word tmpCounter + 1
 RETURN
@@ -153,6 +169,7 @@ PauseAndRecord:
     minorPauseCounter = minorPauseCounter // 1000
   ENDIF
 
+<<<<<<< Updated upstream
   WRITE ShiftTimer, Word tmpCounter
 RETURN
 
@@ -166,3 +183,6 @@ CycleUpdate:
   NEXT
   DEBUG CR
 RETURN
+=======
+  WRITE ShiftTimer, Word tmpCounter
+>>>>>>> Stashed changes
