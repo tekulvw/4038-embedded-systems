@@ -11,6 +11,8 @@ Init:
   MinReading CON 100
   MaxReading CON 4000
 
+  ShiftTimeSec CON 28800
+
   rawReading VAR Word
 
   BoxPresent VAR Bit
@@ -31,13 +33,19 @@ Init:
   minorPauseCounter VAR Word
 
   state VAR Nib
+  idx VAR Nib
 
 Main:
   DO
     IF state = 0 THEN ' Initialize
       LOW JamIndicator
       BoxPresentDuration = 0
-      state = 1
+      READ ShiftTimer, Word tmpCounter
+      IF ShiftTimer > ShiftTimeSec THEN
+        state = 14
+      ELSE
+        state = 1
+      ENDIF
     ELSEIF state = 1 THEN ' Wait for box
       GOSUB CheckBoxPresent
       IF BoxPresent = 1 THEN
@@ -46,11 +54,13 @@ Main:
       ELSEIF BoxPresentDuration > 11000 THEN
         state = 15
       ELSE
-        PAUSE 100
+        PauseDuration = 100
+        GOSUB PauseAndRecord
         BoxPresentDuration = BoxPresentDuration + 100
       ENDIF
     ELSEIF state = 2 THEN ' Time box duration
-      PAUSE 100
+      PauseDuration = 100
+      GOSUB PauseAndRecord
       BoxPresentDuration = BoxPresentDuration + 100
       GOSUB CheckBoxPresent ' This burns a few ms
       IF BoxPresent = 0 THEN
@@ -61,9 +71,18 @@ Main:
     ELSEIF state = 3 THEN ' Box detection ended, categorize and add count
       GOSUB CategorizeBox
       GOSUB AddBoxCount
+      state = 4
+    ELSEIF state = 4 THEN ' Send updated counts to serial
+      GOSUB CycleUpdate
+      state = 0
+    ELSEIF state = 14 THEN ' Send final results to serial
+      GOSUB CycleUpdate
+      WRITE ShiftTimer, Word 0
+      state = 0
     ELSEIF state = 15 THEN ' Error: JAM
       HIGH JamIndicator
-      PAUSE 50
+      PauseDuration = 50
+      GOSUB PauseAndRecord
       IF JamReset = 1 THEN
         state = 0
       ENDIF
@@ -81,7 +100,8 @@ Main:
 
 GetRCTime:
   HIGH 2
-  PAUSE 3
+  PauseDuration = 3
+  GOSUB PauseAndRecord
   RCTIME PhotoResistor, 1, rawReading
 RETURN
 
@@ -114,6 +134,11 @@ AddBoxCount:
 RETURN
 
 PauseAndRecord:
+  ' I really hope everyone realizes that this effort is futile.
+  ' There's zero way to accurately record a shift timer using this
+  ' board because there is no independently accessible clock. The
+  ' fake timer I've set up here completely ignores all instruction
+  ' processing time as there is no way to truly record it.
   READ ShiftTimer, Word tmpCounter
   PAUSE PauseDuration
   IF PauseDuration < 1000 THEN
@@ -129,3 +154,15 @@ PauseAndRecord:
   ENDIF
 
   WRITE ShiftTimer, Word tmpCounter
+RETURN
+
+CycleUpdate:
+  ' Output format (csv): Shift Timer (sec),10cm Count,20cm Count,30cm Count,40cm Count,Unknown Count,Jam Count
+  READ ShiftTimer, Word tmpCounter
+  DEBUG DEC tmpCounter
+  FOR idx = 0 TO 5
+    READ BoxCounts + idx, Word tmpCounter
+    DEBUG ",", DEC tmpCounter
+  NEXT
+  DEBUG CR
+RETURN
