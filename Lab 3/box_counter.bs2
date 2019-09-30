@@ -1,0 +1,188 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+Init:
+  PhotoResistor PIN 2
+  JamIndicator PIN 3
+  OUTPUT JamIndicator
+  JamReset PIN 4
+  INPUT JamReset
+
+  MinReading CON 65
+  MaxReading CON 2800
+
+  Box10Time CON 1000
+  Box20Time CON 2000
+  Box30Time CON 3000
+  Box40Time CON 4000
+
+  Hysteresis CON 400
+
+  ShiftTimeSec CON 28800
+
+  rawReading VAR Word
+
+  BoxPresent VAR Bit
+  BoxPresentDuration VAR Byte
+
+  BoxCounts DATA (10) ' Reserve 10 bytes for 5 x 16 bit words
+  ShiftTimer DATA (2) ' Reserve 1 word for shift timer in seconds
+
+  tmpBoxType VAR Nib ' 0 = 10cm
+                     ' 1 = 20cm
+                     ' 2 = 30cm
+                     ' 3 = 40cm
+                     ' 4 = Invalid size
+                     ' 5 = Jam
+  tmpCounter VAR Word
+
+  PauseDuration VAR Byte
+  minorPauseCounter VAR Word
+
+  state VAR Nib
+  idx VAR Nib
+
+Main:
+  DO
+    IF state = 0 THEN ' Initialize
+      DEBUG "state = 0", CR
+      LOW JamIndicator
+      BoxPresentDuration = 0
+      READ ShiftTimer, Word tmpCounter
+      IF ShiftTimer > ShiftTimeSec THEN
+        state = 14
+      ELSE
+        state = 1
+      ENDIF
+    ELSEIF state = 1 THEN ' Wait for box
+      DEBUG "state = 1", CR
+      GOSUB CheckBoxPresent
+      IF BoxPresent = 1 THEN
+        BoxPresentDuration = 0
+        state = 2
+      ELSEIF BoxPresentDuration > 11000 THEN
+        state = 15
+      ELSE
+        PauseDuration = 100
+        GOSUB PauseAndRecord
+        BoxPresentDuration = BoxPresentDuration + 100
+      ENDIF
+    ELSEIF state = 2 THEN ' Time box duration
+<<<<<<< Updated upstream
+      PauseDuration = 100
+      GOSUB PauseAndRecord
+=======
+      DEBUG "state = 2", CR
+      PAUSE 100
+>>>>>>> Stashed changes
+      BoxPresentDuration = BoxPresentDuration + 100
+      GOSUB CheckBoxPresent ' This burns a few ms
+      IF BoxPresent = 0 THEN
+        state = 3
+      ELSEIF BoxPresentDuration > 5000 THEN
+        state = 15
+      ENDIF
+    ELSEIF state = 3 THEN ' Box detection ended, categorize and add count
+      DEBUG "state = 3", CR
+      GOSUB CategorizeBox
+      GOSUB AddBoxCount
+      state = 4
+    ELSEIF state = 4 THEN ' Send updated counts to serial
+      GOSUB CycleUpdate
+      state = 0
+    ELSEIF state = 14 THEN ' Send final results to serial
+      GOSUB CycleUpdate
+      WRITE ShiftTimer, Word 0
+      state = 0
+    ELSEIF state = 15 THEN ' Error: JAM
+      HIGH JamIndicator
+      PauseDuration = 50
+      GOSUB PauseAndRecord
+      IF JamReset = 1 THEN
+        state = 0
+      ENDIF
+      LOW JamIndicator
+      PAUSE 50
+      IF JamReset = 1 THEN
+        state = 0
+      ENDIF
+      IF state = 0 THEN
+        tmpBoxType = 5
+        GOSUB AddBoxCount
+      ENDIF
+    ENDIF
+  LOOP
+
+GetRCTime:
+  HIGH 2
+  PauseDuration = 3
+  GOSUB PauseAndRecord
+  RCTIME PhotoResistor, 1, rawReading
+RETURN
+
+CheckBoxPresent:
+  GOSUB GetRCTime
+  IF rawReading > (MaxReading - MinReading) / 4 * 3 THEN
+    BoxPresent = 0
+  ELSEIF rawReading < (MaxReading - MinReading) / 4 THEN
+    BoxPresent = 1
+  ENDIF
+RETURN
+
+CategorizeBox:
+  IF BoxPresentDuration > (Box10Time - Hysteresis) AND BoxPresentDuration < (Box10Time + Hysteresis) THEN
+    tmpBoxType = 0
+  ELSEIF BoxPresentDuration > (Box20Time - Hysteresis) AND BoxPresentDuration < (Box20Time + Hysteresis) THEN
+    tmpBoxType = 1
+  ELSEIF BoxPresentDuration > (Box30Time - Hysteresis) AND BoxPresentDuration < (Box30Time + Hysteresis) THEN
+    tmpBoxType = 2
+  ELSEIF BoxPresentDuration > (Box40Time - Hysteresis) AND BoxPresentDuration < (Box40Time + Hysteresis) THEN
+    tmpBoxType = 3
+  ELSE
+    tmpBoxType = 4
+  ENDIF
+RETURN
+
+AddBoxCount:
+  DEBUG "Adding box type ", DEC tmpBoxType, CR
+  READ BoxCounts + tmpBoxType, Word tmpCounter
+  WRITE BoxCounts + tmpBoxType, Word tmpCounter + 1
+RETURN
+
+PauseAndRecord:
+  ' I really hope everyone realizes that this effort is futile.
+  ' There's zero way to accurately record a shift timer using this
+  ' board because there is no independently accessible clock. The
+  ' fake timer I've set up here completely ignores all instruction
+  ' processing time as there is no way to truly record it.
+  READ ShiftTimer, Word tmpCounter
+  PAUSE PauseDuration
+  IF PauseDuration < 1000 THEN
+    minorPauseCounter = minorPauseCounter + PauseDuration
+  ELSE
+    minorPauseCounter = minorPauseCounter + (PauseDuration // 1000)
+    tmpCounter = tmpCounter + (PauseDuration / 1000)
+  ENDIF
+
+  IF minorPauseCounter > 1000 THEN
+    tmpCounter = tmpCounter + (minorPauseCounter / 1000)
+    minorPauseCounter = minorPauseCounter // 1000
+  ENDIF
+
+<<<<<<< Updated upstream
+  WRITE ShiftTimer, Word tmpCounter
+RETURN
+
+CycleUpdate:
+  ' Output format (csv): Shift Timer (sec),10cm Count,20cm Count,30cm Count,40cm Count,Unknown Count,Jam Count
+  READ ShiftTimer, Word tmpCounter
+  DEBUG DEC tmpCounter
+  FOR idx = 0 TO 5
+    READ BoxCounts + idx, Word tmpCounter
+    DEBUG ",", DEC tmpCounter
+  NEXT
+  DEBUG CR
+RETURN
+=======
+  WRITE ShiftTimer, Word tmpCounter
+>>>>>>> Stashed changes
