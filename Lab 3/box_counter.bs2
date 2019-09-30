@@ -25,7 +25,7 @@ Init:
   BoxPresent VAR Bit
   BoxPresentDuration VAR Byte
 
-  BoxCounts DATA (10) ' Reserve 10 bytes for 5 x 16 bit words
+  BoxCounts DATA (12) ' Reserve 12 bytes for 6 x 16 bit words
   ShiftTimer DATA (2) ' Reserve 1 word for shift timer in seconds
 
   tmpBoxType VAR Nib ' 0 = 10cm
@@ -45,7 +45,6 @@ Init:
 Main:
   DO
     IF state = 0 THEN ' Initialize
-      DEBUG "state = 0", CR
       LOW JamIndicator
       BoxPresentDuration = 0
       READ ShiftTimer, Word tmpCounter
@@ -55,7 +54,6 @@ Main:
         state = 1
       ENDIF
     ELSEIF state = 1 THEN ' Wait for box
-      DEBUG "state = 1", CR
       GOSUB CheckBoxPresent
       IF BoxPresent = 1 THEN
         BoxPresentDuration = 0
@@ -68,13 +66,8 @@ Main:
         BoxPresentDuration = BoxPresentDuration + 100
       ENDIF
     ELSEIF state = 2 THEN ' Time box duration
-<<<<<<< Updated upstream
       PauseDuration = 100
       GOSUB PauseAndRecord
-=======
-      DEBUG "state = 2", CR
-      PAUSE 100
->>>>>>> Stashed changes
       BoxPresentDuration = BoxPresentDuration + 100
       GOSUB CheckBoxPresent ' This burns a few ms
       IF BoxPresent = 0 THEN
@@ -83,7 +76,6 @@ Main:
         state = 15
       ENDIF
     ELSEIF state = 3 THEN ' Box detection ended, categorize and add count
-      DEBUG "state = 3", CR
       GOSUB CategorizeBox
       GOSUB AddBoxCount
       state = 4
@@ -93,6 +85,9 @@ Main:
     ELSEIF state = 14 THEN ' Send final results to serial
       GOSUB CycleUpdate
       WRITE ShiftTimer, Word 0
+      FOR idx = 0 TO 5
+        WRITE BoxCounts + (2 * tmpBoxType), Word 0
+      NEXT
       state = 0
     ELSEIF state = 15 THEN ' Error: JAM
       HIGH JamIndicator
@@ -144,9 +139,8 @@ CategorizeBox:
 RETURN
 
 AddBoxCount:
-  DEBUG "Adding box type ", DEC tmpBoxType, CR
-  READ BoxCounts + tmpBoxType, Word tmpCounter
-  WRITE BoxCounts + tmpBoxType, Word tmpCounter + 1
+  READ BoxCounts + (2 * tmpBoxType), Word tmpCounter
+  WRITE BoxCounts + (2 * tmpBoxType), Word tmpCounter + 1
 RETURN
 
 PauseAndRecord:
@@ -169,7 +163,6 @@ PauseAndRecord:
     minorPauseCounter = minorPauseCounter // 1000
   ENDIF
 
-<<<<<<< Updated upstream
   WRITE ShiftTimer, Word tmpCounter
 RETURN
 
@@ -178,11 +171,8 @@ CycleUpdate:
   READ ShiftTimer, Word tmpCounter
   DEBUG DEC tmpCounter
   FOR idx = 0 TO 5
-    READ BoxCounts + idx, Word tmpCounter
+    READ BoxCounts + (2 * idx), Word tmpCounter
     DEBUG ",", DEC tmpCounter
   NEXT
   DEBUG CR
 RETURN
-=======
-  WRITE ShiftTimer, Word tmpCounter
->>>>>>> Stashed changes
