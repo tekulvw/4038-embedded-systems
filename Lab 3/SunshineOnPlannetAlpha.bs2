@@ -1,0 +1,32 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+time          VAR Word
+eepromAddress VAR Byte
+
+PAUSE 1000
+DEBUG "Starting measurements...", CR, CR,
+      "Measurement  Value", CR,
+      "-----------  ------", CR
+DO
+FOR eepromAddress = 0 TO 5 STEP 2
+    HIGH 2
+    SLEEP 5
+    RCTIME 2, 1, time
+    DEBUG DEC2 eepromaddress,
+        "              ", DEC time, CR
+    WRITE eepromAddress, Word time
+NEXT
+DEBUG "Retrieving measurements", CR, CR,
+      "Measurement     Value", CR,
+      "-----------     -----", CR
+FOR eepromAddress = 0 TO 5 STEP 2
+    READ eepromAddress, Word time
+    DEBUG DEC2 eepromAddress,  "          ",  DEC time, CR
+NEXT
+FOR eepromAddress = 0 TO 5 STEP 2
+    time = 0
+    WRITE eepromAddress, Word time
+NEXT
+LOOP
+END

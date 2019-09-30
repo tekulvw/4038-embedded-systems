@@ -1,0 +1,17 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+pinCounter VAR Nib
+
+PAUSE 1000
+DEBUG "I/O Pin", CR,
+      "-------", CR
+
+FOR pinCounter = 8 TO 15
+
+    DEBUG DEC2 pinCounter, cr
+    HIGH pinCounter
+    PAUSE 1000
+    LOW pinCounter
+
+next

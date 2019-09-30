@@ -1,0 +1,24 @@
+' {$STAMP BS2}
+' {$PBASIC 2.5}
+
+PAUSE 1000
+DEBUG "Program Running!"
+
+index VAR Nib
+time VAR Word
+
+OUTH = %00000000
+DIRH = %11111111
+
+do
+
+  HIGH 5
+  PAUSE 100
+  RCTIME 5, 1, time
+
+  LOOKDOWN time, <= [40, 150, 275, 400, 550, 800], index
+
+  LOOKUP index, [ %11100101, %11100001, %01100001,
+                  %00100001, %00000001, %00000000 ], outh
+
+loop
