@@ -107,6 +107,7 @@ PlayNextNote:
   IF char = "q" THEN
     SongEnd = 1
   ELSE
+    GOSUB GetPotentiometerTempo
     GOSUB ProcessDuration                    ' Get note duration.
     GOSUB ProcessNote                        ' Get index value of note.
     GOSUB CheckForDot                        ' If dot, 3/2 duration.
@@ -198,9 +199,14 @@ GetPotentiometerTempo:
   HIGH Potentiometer
   PAUSE 5
   RCTIME Potentiometer, 1, potTimer
-  potTempo = (((potTimer - 1) * ((4*default_b) - (default_b */ 64))) / 644) + (default_b */ 64)
+  potTempo = (potTimer - 1) / 8
+  potTempo = (potTempo * ((4*default_b) - (default_b */ 64)))
+  DEBUG "pot tempo: ", DEC potTempo, CR
+  potTempo = potTempo / 80
+  DEBUG "pot tempo: ", DEC potTempo, CR
+  potTempo = potTempo + (default_b */ 64)
   ' Adjust
-
+  DEBUG "pot tempo: ", DEC potTempo, CR, CR
 RETURN
 
 ' -----[ Subroutine - Find Index of Note ]--------------------------------
