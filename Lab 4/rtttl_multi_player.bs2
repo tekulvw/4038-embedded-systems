@@ -52,6 +52,7 @@ PlayerVarConfig:
   default_b      VAR     Word                ' Stores default beats/min.
 
   potTimer VAR Word
+  potTempo VAR Word
 
 MainVarConfig:
   SongIndex VAR Nib
@@ -144,7 +145,7 @@ RETURN
     ENDSELECT
 
     IF default_d <> 0 THEN                   ' If default_d not defined
-      duration = 60000/default_b/duration*3  ' (if default_d = 0), then
+      duration = 60000/potTempo/duration*3  ' (if default_d = 0), then
     ELSE                                     ' set default_d = to the
       default_d = duration                   ' duration from the d=#.
     ENDIF
@@ -197,8 +198,9 @@ GetPotentiometerTempo:
   HIGH Potentiometer
   PAUSE 5
   RCTIME Potentiometer, 1, potTimer
-
+  potTempo = (((potTimer - 1) * ((4*default_b) - (default_b */ 64))) / 644) + (default_b */ 64)
   ' Adjust
+
 RETURN
 
 ' -----[ Subroutine - Find Index of Note ]--------------------------------
