@@ -248,6 +248,7 @@ RETURN
     READ SongAddress + counter, char          ' fetch the note frequency
     SELECT char                              ' from data, and play it, or
       CASE ","                               ' pause if frequency = 0.
+        GOSUB UpdateDisplay
         counter = counter + 1
         READ Octave8 + (index * 2), Word noteFreq
         noteOctave = 8 - noteOctave
@@ -260,3 +261,42 @@ RETURN
     ENDSELECT
 
     RETURN
+
+UpdateDisplay:
+  SELECT noteLetter
+    CASE "p"
+      OUTH = %00000000
+    CASE "a"
+      OUTH = %11100001
+    CASE "b"
+      OUTH = %11100011
+    CASE "c"
+      OUTH = %01100011
+    CASE "d"
+      OUTH = %11100111
+    CASE "e"
+      OUTH = %01110011
+    CASE "f"
+      OUTH = %01110001
+  ENDSELECT
+  IF IsSharp = 1 THEN
+    HIGH 11
+  ELSE
+    LOW 11
+  ENDIF
+
+  SELECT noteOctave
+    CASE 5
+      LOW OctaveLow
+      LOW OctaveHigh
+    CASE 6
+      HIGH OctaveLow
+      LOW OctaveHigh
+    CASE 7
+      LOW OctaveLow
+      HIGH OctaveHigh
+    CASE 8
+      HIGH OctaveLow
+      HIGH OctaveHigh
+  ENDSELECT
+RETURN
