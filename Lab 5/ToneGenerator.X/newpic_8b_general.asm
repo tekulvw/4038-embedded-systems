@@ -204,6 +204,14 @@ INIT
     MOVLW 0xF ; TARGET = 7 FOR 1MHZ OSC
     MOVWF PR2
     
+    BANKSEL PORTA
+    CLRF PORTA
+    BANKSEL TRISA
+    CLRF TRISA
+    BSF TRISA, 1
+    BANKSEL ANSELA
+    CLRF ANSELA
+    
     BANKSEL PORTB
     CLRF PORTB
     BANKSEL TRISB
@@ -231,6 +239,16 @@ INIT
     MOVWF RB6PPS
     
     RETURN
+    
+DISABLE_FREQ
+    BANKSEL TRISB
+    BSF TRISB, 6
+    RETURN
+    
+ENABLE_FREQ
+    BANKSEL TRISB
+    BCF TRISB, 6
+    RETURN
 
 START
 
@@ -238,8 +256,16 @@ START
     
     ;BANKSEL T0CON0
     ;BSF T0CON0, 7
- 
-    MOVLW 0x55                      ; your instructions
-    GOTO $                          ; loop forever
+    
+    LOOP
+    BANKSEL PORTA
+    BTFSC PORTA, 1
+    CALL DISABLE_FREQ
+    
+    BANKSEL PORTA
+    BTFSS PORTA, 1
+    CALL ENABLE_FREQ
+    
+    GOTO LOOP                          ; loop forever
 
     END

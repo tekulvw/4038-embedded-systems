@@ -30,12 +30,12 @@ ifeq ($(TYPE_IMAGE), DEBUG_RUN)
 IMAGE_TYPE=debug
 OUTPUT_SUFFIX=cof
 DEBUGGABLE_SUFFIX=cof
-FINAL_IMAGE=dist/${CND_CONF}/${IMAGE_TYPE}/Attempt3.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+FINAL_IMAGE=dist/${CND_CONF}/${IMAGE_TYPE}/FlashingLights.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
 else
 IMAGE_TYPE=production
 OUTPUT_SUFFIX=hex
 DEBUGGABLE_SUFFIX=cof
-FINAL_IMAGE=dist/${CND_CONF}/${IMAGE_TYPE}/Attempt3.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+FINAL_IMAGE=dist/${CND_CONF}/${IMAGE_TYPE}/FlashingLights.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
 endif
 
 ifeq ($(COMPARE_BUILD), true)
@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=newpic_8b_general.asm
+SOURCEFILES_QUOTED_IF_SPACED=newpic_8b_general1.asm
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/newpic_8b_general.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/newpic_8b_general.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/newpic_8b_general1.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/newpic_8b_general1.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/newpic_8b_general.o
+OBJECTFILES=${OBJECTDIR}/newpic_8b_general1.o
 
 # Source Files
-SOURCEFILES=newpic_8b_general.asm
+SOURCEFILES=newpic_8b_general1.asm
 
 
 
@@ -88,42 +88,42 @@ FIXDEPS=fixDeps
 ifneq ($(INFORMATION_MESSAGE), )
 	@echo $(INFORMATION_MESSAGE)
 endif
-	${MAKE}  -f nbproject/Makefile-default.mk dist/${CND_CONF}/${IMAGE_TYPE}/Attempt3.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+	${MAKE}  -f nbproject/Makefile-default.mk dist/${CND_CONF}/${IMAGE_TYPE}/FlashingLights.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
 
 MP_PROCESSOR_OPTION=16f18346
 MP_LINKER_DEBUG_OPTION= 
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: assemble
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/newpic_8b_general.o: newpic_8b_general.asm  nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/newpic_8b_general1.o: newpic_8b_general1.asm  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/newpic_8b_general.o.d 
-	@${RM} ${OBJECTDIR}/newpic_8b_general.o 
-	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/newpic_8b_general.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -d__DEBUG -d__MPLAB_DEBUGGER_PK3=1 -q -p$(MP_PROCESSOR_OPTION) -u  -l\\\"${OBJECTDIR}/newpic_8b_general.lst\\\" -e\\\"${OBJECTDIR}/newpic_8b_general.err\\\" $(ASM_OPTIONS)    -o\\\"${OBJECTDIR}/newpic_8b_general.o\\\" \\\"newpic_8b_general.asm\\\" 
-	@${DEP_GEN} -d "${OBJECTDIR}/newpic_8b_general.o"
-	@${FIXDEPS} "${OBJECTDIR}/newpic_8b_general.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
+	@${RM} ${OBJECTDIR}/newpic_8b_general1.o.d 
+	@${RM} ${OBJECTDIR}/newpic_8b_general1.o 
+	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/newpic_8b_general1.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -d__DEBUG -d__MPLAB_DEBUGGER_PK3=1 -q -p$(MP_PROCESSOR_OPTION) -u  -l\\\"${OBJECTDIR}/newpic_8b_general1.lst\\\" -e\\\"${OBJECTDIR}/newpic_8b_general1.err\\\" $(ASM_OPTIONS)    -o\\\"${OBJECTDIR}/newpic_8b_general1.o\\\" \\\"newpic_8b_general1.asm\\\" 
+	@${DEP_GEN} -d "${OBJECTDIR}/newpic_8b_general1.o"
+	@${FIXDEPS} "${OBJECTDIR}/newpic_8b_general1.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
 	
 else
-${OBJECTDIR}/newpic_8b_general.o: newpic_8b_general.asm  nbproject/Makefile-${CND_CONF}.mk
+${OBJECTDIR}/newpic_8b_general1.o: newpic_8b_general1.asm  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/newpic_8b_general.o.d 
-	@${RM} ${OBJECTDIR}/newpic_8b_general.o 
-	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/newpic_8b_general.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -q -p$(MP_PROCESSOR_OPTION) -u  -l\\\"${OBJECTDIR}/newpic_8b_general.lst\\\" -e\\\"${OBJECTDIR}/newpic_8b_general.err\\\" $(ASM_OPTIONS)    -o\\\"${OBJECTDIR}/newpic_8b_general.o\\\" \\\"newpic_8b_general.asm\\\" 
-	@${DEP_GEN} -d "${OBJECTDIR}/newpic_8b_general.o"
-	@${FIXDEPS} "${OBJECTDIR}/newpic_8b_general.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
+	@${RM} ${OBJECTDIR}/newpic_8b_general1.o.d 
+	@${RM} ${OBJECTDIR}/newpic_8b_general1.o 
+	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/newpic_8b_general1.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -q -p$(MP_PROCESSOR_OPTION) -u  -l\\\"${OBJECTDIR}/newpic_8b_general1.lst\\\" -e\\\"${OBJECTDIR}/newpic_8b_general1.err\\\" $(ASM_OPTIONS)    -o\\\"${OBJECTDIR}/newpic_8b_general1.o\\\" \\\"newpic_8b_general1.asm\\\" 
+	@${DEP_GEN} -d "${OBJECTDIR}/newpic_8b_general1.o"
+	@${FIXDEPS} "${OBJECTDIR}/newpic_8b_general1.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
 	
 endif
 
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: link
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-dist/${CND_CONF}/${IMAGE_TYPE}/Attempt3.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk    
+dist/${CND_CONF}/${IMAGE_TYPE}/FlashingLights.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk    
 	@${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
-	${MP_LD} $(MP_EXTRA_LD_PRE)   -p$(MP_PROCESSOR_OPTION)  -w -x -u_DEBUG -z__ICD2RAM=1 -m"${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"   -z__MPLAB_BUILD=1  -z__MPLAB_DEBUG=1 -z__MPLAB_DEBUGGER_PK3=1 $(MP_LINKER_DEBUG_OPTION) -odist/${CND_CONF}/${IMAGE_TYPE}/Attempt3.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}  ${OBJECTFILES_QUOTED_IF_SPACED}     
+	${MP_LD} $(MP_EXTRA_LD_PRE)   -p$(MP_PROCESSOR_OPTION)  -w -x -u_DEBUG -z__ICD2RAM=1 -m"${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"   -z__MPLAB_BUILD=1  -z__MPLAB_DEBUG=1 -z__MPLAB_DEBUGGER_PK3=1 $(MP_LINKER_DEBUG_OPTION) -odist/${CND_CONF}/${IMAGE_TYPE}/FlashingLights.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}  ${OBJECTFILES_QUOTED_IF_SPACED}     
 else
-dist/${CND_CONF}/${IMAGE_TYPE}/Attempt3.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk   
+dist/${CND_CONF}/${IMAGE_TYPE}/FlashingLights.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk   
 	@${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
-	${MP_LD} $(MP_EXTRA_LD_PRE)   -p$(MP_PROCESSOR_OPTION)  -w  -m"${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"   -z__MPLAB_BUILD=1  -odist/${CND_CONF}/${IMAGE_TYPE}/Attempt3.X.${IMAGE_TYPE}.${DEBUGGABLE_SUFFIX}  ${OBJECTFILES_QUOTED_IF_SPACED}     
+	${MP_LD} $(MP_EXTRA_LD_PRE)   -p$(MP_PROCESSOR_OPTION)  -w  -m"${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"   -z__MPLAB_BUILD=1  -odist/${CND_CONF}/${IMAGE_TYPE}/FlashingLights.X.${IMAGE_TYPE}.${DEBUGGABLE_SUFFIX}  ${OBJECTFILES_QUOTED_IF_SPACED}     
 endif
 
 

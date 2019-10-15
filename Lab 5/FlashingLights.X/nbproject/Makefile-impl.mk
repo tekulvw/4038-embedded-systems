@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=Attempt3.X
+PROJECTNAME=FlashingLights.X
 
 # Active Configuration
 DEFAULTCONF=default
