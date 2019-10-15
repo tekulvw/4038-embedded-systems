@@ -1,8 +1,0 @@
-Message[302] /home/will/Documents/UC/Embedded Systems/Git/Lab 5/Attempt3.X/newpic_8b_general.asm 197 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] /home/will/Documents/UC/Embedded Systems/Git/Lab 5/Attempt3.X/newpic_8b_general.asm 202 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] /home/will/Documents/UC/Embedded Systems/Git/Lab 5/Attempt3.X/newpic_8b_general.asm 204 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] /home/will/Documents/UC/Embedded Systems/Git/Lab 5/Attempt3.X/newpic_8b_general.asm 207 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] /home/will/Documents/UC/Embedded Systems/Git/Lab 5/Attempt3.X/newpic_8b_general.asm 208 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Warning[207] /home/will/Documents/UC/Embedded Systems/Git/Lab 5/Attempt3.X/newpic_8b_general.asm 217 : Found label after column 1. (TIMER_DELAY_LOOP)
-Message[305] /home/will/Documents/UC/Embedded Systems/Git/Lab 5/Attempt3.X/newpic_8b_general.asm 228 : Using default destination of 1 (file).
-Warning[207] /home/will/Documents/UC/Embedded Systems/Git/Lab 5/Attempt3.X/newpic_8b_general.asm 247 : Found label after column 1. (LOOP)
