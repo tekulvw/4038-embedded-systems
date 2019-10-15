@@ -1,0 +1,16 @@
+/Lab 5/Attempt1.X/build/
+/Lab 5/Attempt2.X/dist/
+/Lab 5/Attempt2.X/build/
+/Lab 5/Attempt3.X/dist/
+/Lab 5/Attempt3.X/build/
+/Lab 5/ToneGenerator.X/build/
+/Lab 5/ToneGenerator.X/dist/
+/Lab 5/FlashingLights.X/build/
+/Lab 5/FlashingLights.X/dist/
+
+*.o
+*.err
+*.lst
+*.cof
+*/build/*
+*/dist/*
