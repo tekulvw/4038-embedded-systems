@@ -1,0 +1,291 @@
+[p GLOBOPT AUTOSTATIC IEEE_DBL IEEE_FLT PIC14 PIC14E ]
+[d version 1.1 ]
+[d edition pro ]
+[d chip 16F18346 ]
+[d frameptr 6 ]
+"10 /opt/microchip/xc8/v2.10/pic/sources/c99/common/sprcadd.c
+[v ___fladd __fladd `(d  1 e 4 0 ]
+"4 /opt/microchip/xc8/v2.10/pic/sources/c99/common/Umul8_16.c
+[v __Umul8_16 _Umul8_16 `(ui  1 e 2 0 ]
+"6 /opt/microchip/xc8/v2.10/pic/sources/c99/pic/__eeprom.c
+[v ___eecpymem __eecpymem `(v  1 e 1 0 ]
+"39
+[v ___memcpyee __memcpyee `(v  1 e 1 0 ]
+"50 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/main.c
+[v _S1_Int_Handler S1_Int_Handler `(v  1 e 1 0 ]
+"58
+[v _main main `(v  1 e 1 0 ]
+"32 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/ext_int.c
+[v _INT_ISR INT_ISR `(v  1 e 1 0 ]
+"41
+[v _INT_CallBack INT_CallBack `(v  1 e 1 0 ]
+"50
+[v _INT_SetInterruptHandler INT_SetInterruptHandler `(v  1 e 1 0 ]
+"54
+[v _INT_DefaultInterruptHandler INT_DefaultInterruptHandler `(v  1 e 1 0 ]
+"59
+[v _EXT_INT_Initialize EXT_INT_Initialize `(v  1 e 1 0 ]
+"52 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/interrupt_manager.c
+[v _INTERRUPT_InterruptManager INTERRUPT_InterruptManager `II(v  1 e 1 0 ]
+"50 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/mcc.c
+[v _SYSTEM_Initialize SYSTEM_Initialize `(v  1 e 1 0 ]
+"62
+[v _OSCILLATOR_Initialize OSCILLATOR_Initialize `(v  1 e 1 0 ]
+"76
+[v _WDT_Initialize WDT_Initialize `(v  1 e 1 0 ]
+"82
+[v _PMD_Initialize PMD_Initialize `(v  1 e 1 0 ]
+"55 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/pin_manager.c
+[v _PIN_MANAGER_Initialize PIN_MANAGER_Initialize `(v  1 e 1 0 ]
+"58 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/pwm5.c
+[v _PWM5_Initialize PWM5_Initialize `(v  1 e 1 0 ]
+"62 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/tmr2.c
+[v _TMR2_Initialize TMR2_Initialize `(v  1 e 1 0 ]
+"79
+[v _TMR2_StartTimer TMR2_StartTimer `(v  1 e 1 0 ]
+"85
+[v _TMR2_StopTimer TMR2_StopTimer `(v  1 e 1 0 ]
+[s S83 . 1 `uc 1 INTEDG 1 0 :1:0 
+`uc 1 . 1 0 :5:1 
+`uc 1 PEIE 1 0 :1:6 
+`uc 1 GIE 1 0 :1:7 
+]
+"364 /opt/microchip/xc8/v2.10/pic/include/pic16f18346.h
+[u S88 . 1 `S83 1 . 1 0 ]
+[v _INTCONbits INTCONbits `VES88  1 e 1 @11 ]
+[s S22 . 1 `uc 1 RC0 1 0 :1:0 
+`uc 1 RC1 1 0 :1:1 
+`uc 1 RC2 1 0 :1:2 
+`uc 1 RC3 1 0 :1:3 
+`uc 1 RC4 1 0 :1:4 
+`uc 1 RC5 1 0 :1:5 
+`uc 1 RC6 1 0 :1:6 
+`uc 1 RC7 1 0 :1:7 
+]
+"490
+[u S31 . 1 `S22 1 . 1 0 ]
+[v _PORTCbits PORTCbits `VES31  1 e 1 @14 ]
+[s S276 . 1 `uc 1 INTF 1 0 :1:0 
+`uc 1 . 1 0 :3:1 
+`uc 1 IOCIF 1 0 :1:4 
+`uc 1 TMR0IF 1 0 :1:5 
+]
+"548
+[u S281 . 1 `S276 1 . 1 0 ]
+[v _PIR0bits PIR0bits `VES281  1 e 1 @16 ]
+[s S153 . 1 `uc 1 TMR1IF 1 0 :1:0 
+`uc 1 TMR2IF 1 0 :1:1 
+`uc 1 BCL1IF 1 0 :1:2 
+`uc 1 SSP1IF 1 0 :1:3 
+`uc 1 TXIF 1 0 :1:4 
+`uc 1 RCIF 1 0 :1:5 
+`uc 1 ADIF 1 0 :1:6 
+`uc 1 TMR1GIF 1 0 :1:7 
+]
+"585
+[u S162 . 1 `S153 1 . 1 0 ]
+[v _PIR1bits PIR1bits `VES162  1 e 1 @17 ]
+"1439
+[v _TMR2 TMR2 `VEuc  1 e 1 @29 ]
+"1459
+[v _PR2 PR2 `VEuc  1 e 1 @30 ]
+"1479
+[v _T2CON T2CON `VEuc  1 e 1 @31 ]
+[s S43 . 1 `uc 1 T2CKPS 1 0 :2:0 
+`uc 1 TMR2ON 1 0 :1:2 
+`uc 1 T2OUTPS 1 0 :4:3 
+]
+"1500
+[s S47 . 1 `uc 1 T2CKPS0 1 0 :1:0 
+`uc 1 T2CKPS1 1 0 :1:1 
+`uc 1 . 1 0 :1:2 
+`uc 1 T2OUTPS0 1 0 :1:3 
+`uc 1 T2OUTPS1 1 0 :1:4 
+`uc 1 T2OUTPS2 1 0 :1:5 
+`uc 1 T2OUTPS3 1 0 :1:6 
+]
+[u S55 . 1 `S43 1 . 1 0 `S47 1 . 1 0 ]
+[v _T2CONbits T2CONbits `VES55  1 e 1 @31 ]
+"1550
+[v _TRISA TRISA `VEuc  1 e 1 @140 ]
+"1595
+[v _TRISB TRISB `VEuc  1 e 1 @141 ]
+"1634
+[v _TRISC TRISC `VEuc  1 e 1 @142 ]
+[s S304 . 1 `uc 1 INTE 1 0 :1:0 
+`uc 1 . 1 0 :3:1 
+`uc 1 IOCIE 1 0 :1:4 
+`uc 1 TMR0IE 1 0 :1:5 
+]
+"1709
+[u S309 . 1 `S304 1 . 1 0 ]
+[v _PIE0bits PIE0bits `VES309  1 e 1 @144 ]
+"1977
+[v _WDTCON WDTCON `VEuc  1 e 1 @151 ]
+"2293
+[v _LATA LATA `VEuc  1 e 1 @268 ]
+"2338
+[v _LATB LATB `VEuc  1 e 1 @269 ]
+"2377
+[v _LATC LATC `VEuc  1 e 1 @270 ]
+"2932
+[v _ANSELA ANSELA `VEuc  1 e 1 @396 ]
+"2977
+[v _ANSELB ANSELB `VEuc  1 e 1 @397 ]
+"3016
+[v _ANSELC ANSELC `VEuc  1 e 1 @398 ]
+"3944
+[v _WPUA WPUA `VEuc  1 e 1 @524 ]
+"3994
+[v _WPUB WPUB `VEuc  1 e 1 @525 ]
+"4033
+[v _WPUC WPUC `VEuc  1 e 1 @526 ]
+"6201
+[v _ODCONA ODCONA `VEuc  1 e 1 @652 ]
+"6246
+[v _ODCONB ODCONB `VEuc  1 e 1 @653 ]
+"6285
+[v _ODCONC ODCONC `VEuc  1 e 1 @654 ]
+"6751
+[v _SLRCONA SLRCONA `VEuc  1 e 1 @780 ]
+"6796
+[v _SLRCONB SLRCONB `VEuc  1 e 1 @781 ]
+"6835
+[v _SLRCONC SLRCONC `VEuc  1 e 1 @782 ]
+"7239
+[v _INLVLA INLVLA `VEuc  1 e 1 @908 ]
+"7289
+[v _INLVLB INLVLB `VEuc  1 e 1 @909 ]
+"7328
+[v _INLVLC INLVLC `VEuc  1 e 1 @910 ]
+"9255
+[v _PWM5DCL PWM5DCL `VEuc  1 e 1 @1559 ]
+"9291
+[v _PWM5DCH PWM5DCH `VEuc  1 e 1 @1560 ]
+"9361
+[v _PWM5CON PWM5CON `VEuc  1 e 1 @1561 ]
+[s S126 . 1 `uc 1 P5TSEL 1 0 :2:0 
+`uc 1 P6TSEL 1 0 :2:2 
+]
+"9616
+[s S129 . 1 `uc 1 P5TSEL0 1 0 :1:0 
+`uc 1 P5TSEL1 1 0 :1:1 
+`uc 1 P6TSEL0 1 0 :1:2 
+`uc 1 P6TSEL1 1 0 :1:3 
+]
+[u S134 . 1 `S126 1 . 1 0 `S129 1 . 1 0 ]
+[v _PWMTMRSbits PWMTMRSbits `VES134  1 e 1 @1567 ]
+"12459
+[v _PMD0 PMD0 `VEuc  1 e 1 @2321 ]
+"12504
+[v _PMD1 PMD1 `VEuc  1 e 1 @2322 ]
+"12566
+[v _PMD2 PMD2 `VEuc  1 e 1 @2323 ]
+"12606
+[v _PMD3 PMD3 `VEuc  1 e 1 @2324 ]
+"12668
+[v _PMD4 PMD4 `VEuc  1 e 1 @2325 ]
+"12702
+[v _PMD5 PMD5 `VEuc  1 e 1 @2326 ]
+"12811
+[v _OSCCON1 OSCCON1 `VEuc  1 e 1 @2329 ]
+"12951
+[v _OSCCON3 OSCCON3 `VEuc  1 e 1 @2331 ]
+"13048
+[v _OSCEN OSCEN `VEuc  1 e 1 @2333 ]
+"13094
+[v _OSCTUNE OSCTUNE `VEuc  1 e 1 @2334 ]
+"13152
+[v _OSCFRQ OSCFRQ `VEuc  1 e 1 @2335 ]
+"13218
+[v _INTPPS INTPPS `VEuc  1 e 1 @3600 ]
+"14962
+[v _RB6PPS RB6PPS `VEuc  1 e 1 @3742 ]
+"30 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/ext_int.c
+[v _INT_InterruptHandler INT_InterruptHandler `*.37(v  1 e 2 0 ]
+"58 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/main.c
+[v _main main `(v  1 e 1 0 ]
+{
+"84
+} 0
+"50 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/mcc.c
+[v _SYSTEM_Initialize SYSTEM_Initialize `(v  1 e 1 0 ]
+{
+"60
+} 0
+"76
+[v _WDT_Initialize WDT_Initialize `(v  1 e 1 0 ]
+{
+"80
+} 0
+"62 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/tmr2.c
+[v _TMR2_Initialize TMR2_Initialize `(v  1 e 1 0 ]
+{
+"77
+} 0
+"58 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/pwm5.c
+[v _PWM5_Initialize PWM5_Initialize `(v  1 e 1 0 ]
+{
+"72
+} 0
+"82 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/mcc.c
+[v _PMD_Initialize PMD_Initialize `(v  1 e 1 0 ]
+{
+"96
+} 0
+"55 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/pin_manager.c
+[v _PIN_MANAGER_Initialize PIN_MANAGER_Initialize `(v  1 e 1 0 ]
+{
+"115
+} 0
+"62 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/mcc.c
+[v _OSCILLATOR_Initialize OSCILLATOR_Initialize `(v  1 e 1 0 ]
+{
+"74
+} 0
+"59 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/ext_int.c
+[v _EXT_INT_Initialize EXT_INT_Initialize `(v  1 e 1 0 ]
+{
+"70
+} 0
+"50
+[v _INT_SetInterruptHandler INT_SetInterruptHandler `(v  1 e 1 0 ]
+{
+[v INT_SetInterruptHandler@InterruptHandler InterruptHandler `*.37(v  1 p 2 0 ]
+"52
+} 0
+"52 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/interrupt_manager.c
+[v _INTERRUPT_InterruptManager INTERRUPT_InterruptManager `II(v  1 e 1 0 ]
+{
+"63
+} 0
+"32 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/ext_int.c
+[v _INT_ISR INT_ISR `(v  1 e 1 0 ]
+{
+"38
+} 0
+"41
+[v _INT_CallBack INT_CallBack `(v  1 e 1 0 ]
+{
+"48
+} 0
+"54
+[v _INT_DefaultInterruptHandler INT_DefaultInterruptHandler `(v  1 e 1 0 ]
+{
+"57
+} 0
+"50 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/main.c
+[v _S1_Int_Handler S1_Int_Handler `(v  1 e 1 0 ]
+{
+"56
+} 0
+"85 /home/will/Documents/UC/Embedded Systems/Git/Lab 6/ToneGenerator.X/mcc_generated_files/tmr2.c
+[v _TMR2_StopTimer TMR2_StopTimer `(v  1 e 1 0 ]
+{
+"89
+} 0
+"79
+[v _TMR2_StartTimer TMR2_StartTimer `(v  1 e 1 0 ]
+{
+"83
+} 0
