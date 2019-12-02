@@ -286,7 +286,7 @@ void loop()
         {
           state.stopArm();
         }
-        else if (state.getSonarDistance < SONAR_TRIGGER_RETRACT_DISTANCE)
+        else if (state.getSonarDistance() < SONAR_TRIGGER_RETRACT_DISTANCE)
         {
           state.retractArmSlow();
         }
@@ -316,7 +316,7 @@ void loop()
     }
     else
     {
-      state.stopArm()
+      state.stopArm();
     }
   }
   else if (state.isArmRetracted() && !state.isLidOpen())
