@@ -21,7 +21,7 @@ unsigned long pingTimer;     // Holds the next ping time.
 #define ARM_SERVO_CLOSED 0
 #define ARM_SERVO_OPEN 90
 #define ARM_SERVO_SPEED_FAST 30 //degrees per second
-#define ARM_SERVO_SPEED_SLOW 5 //degrees per second
+#define ARM_SERVO_SPEED_SLOW 5  //degrees per second
 
 // WARNING: Max servo speed is approx. 270 deg per second
 
@@ -30,7 +30,8 @@ Servo armServo;
 
 #define TOGGLE_BUTTON_PIN 5
 
-enum ArmAction{
+enum ArmAction
+{
   NO_ARM_ACTION,
   FAST_TRIGGER,
   SLOW_TRIGGER,
@@ -40,7 +41,8 @@ enum ArmAction{
   RETRACTED,
 };
 
-enum LidAction{
+enum LidAction
+{
   NO_LID_ACTION,
   OPENING,
   OPEN,
@@ -48,7 +50,8 @@ enum LidAction{
   CLOSED,
 };
 
-typedef struct BoxState {
+typedef struct BoxState
+{
   bool sonarFoundObject;
   bool lastSonarFoundObject;
   int sonarDistance;
@@ -63,67 +66,77 @@ typedef struct BoxState {
   int lidTarget;
   unsigned long lidTimer;
 
-  void reset() {
+  void reset()
+  {
     sonarFoundObject = false;
     lastSonarFoundObject = false;
     sonarDistance = SONAR_MAX_DISTANCE;
-  
+
     motionFound = false;
     lastMotionFound = false;
-    
+
     armState = FAST_WITHDRAW;
     armTarget = ARM_SERVO_CLOSED;
     lidState = CLOSING;
     lidTarget = LID_SERVO_CLOSED;
   }
 
-  void openLid() {
+  void openLid()
+  {
     lidState = OPENING;
     lidTarget = LID_SERVO_OPEN;
     lidTimer = millis();
   }
-  
-  void closeLid() {
+
+  void closeLid()
+  {
     lidState = CLOSING;
     lidTarget = LID_SERVO_CLOSED;
     lidTimer = millis();
   }
-  
-  void pushButtonFast() {
+
+  void pushButtonFast()
+  {
     armState = FAST_TRIGGER;
     armTarget = ARM_SERVO_OPEN;
     armTimer = millis();
   }
 
-  void retractArmFast() {
+  void retractArmFast()
+  {
     armState = FAST_WITHDRAW;
     armTarget = ARM_SERVO_CLOSED;
     armTimer = millis();
   }
-  
-  bool canOpenLid() {
+
+  bool canOpenLid()
+  {
     return !(lidState == OPENING || lidState == OPEN);
   }
-  
-  bool canCloseLid() {
+
+  bool canCloseLid()
+  {
     return armState == RETRACTED && !(lidState == CLOSING || lidState == CLOSED);
   }
 
-  bool canPushButton() {
+  bool canPushButton()
+  {
     return lidState == OPEN;
   }
-  
-  bool needsButtonPush() {
+
+  bool needsButtonPush()
+  {
     return digitalRead(TOGGLE_BUTTON_PIN) == LOW;
   }
 };
 
 BoxState state = {};
 
-void setup() {
+void setup()
+{
   Serial.begin(115200); // Open serial monitor at 115200 baud to see ping results.
   pingTimer = millis(); // Start now.
-  
+
   state.reset();
   lidServo.attach(LID_SERVO_PIN);
   lidServo.write(state.lidTarget);
@@ -134,32 +147,45 @@ void setup() {
   pinMode(TOGGLE_BUTTON_PIN, INPUT_PULLUP);
 }
 
-void loop() {
-  if (millis() >= pingTimer) {
+void loop()
+{
+  if (millis() >= pingTimer)
+  {
     pingTimer += pingSpeed;
     sonar.ping_timer(echoCheck);
   }
   updateMotion();
   updateServos();
 
-  if (state.needsButtonPush()) {
-    if (state.canOpenLid()) {
+  if (state.needsButtonPush())
+  {
+    if (state.canOpenLid())
+    {
       state.openLid();
     }
-  } else if (state.lidState != CLOSED && state.canCloseLid()) {
+  }
+  else if (state.lidState != CLOSED && state.canCloseLid())
+  {
     state.closeLid();
-  } else if (!state.canCloseLid() && !(state.armState == RETRACTED)) {
+  }
+  else if (!state.canCloseLid() && !(state.armState == RETRACTED))
+  {
     state.retractArmFast();
   }
 }
 
-void echoCheck() {
-  if (sonar.check_timer()) {
+void echoCheck()
+{
+  if (sonar.check_timer())
+  {
     state.sonarDistance = sonar.ping_result / US_ROUNDTRIP_CM;
     state.lastSonarFoundObject = state.sonarFoundObject;
-    if (state.sonarDistance < SONAR_MAX_DISTANCE - 100) {
+    if (state.sonarDistance < SONAR_MAX_DISTANCE - 100)
+    {
       state.sonarFoundObject = true;
-    } else {
+    }
+    else
+    {
       state.sonarFoundObject = false;
     }
     Serial.print("Ping: ");
@@ -168,59 +194,80 @@ void echoCheck() {
   }
 }
 
-void updateMotion() {
+void updateMotion()
+{
   state.lastMotionFound = state.motionFound;
   state.motionFound = digitalRead(MOTION_PIN);
 }
 
-void updateServos() {
+void updateServos()
+{
   unsigned lidPosition = lidServo.read();
   unsigned armPosition = armServo.read();
   unsigned long now = millis();
   int timeDiff = now - state.lidTimer;
 
   // Lid Servo Position Calculation
-  if (lidPosition != state.lidTarget) {
+  if (lidPosition != state.lidTarget)
+  {
     int sign = (lidPosition < state.lidTarget) ? 1 : -1;
     int target = lidPosition + (timeDiff * sign * LID_SERVO_SPEED / 1000); // div by 1000 because LID_SERVO_SPEED in deg per seconds
-    if (sign == 1 && target > state.lidTarget) {
-      target = state.lidTarget;
-    } else if (sign == -1 && target < state.lidTarget) {
+    if (sign == 1 && target > state.lidTarget)
+    {
       target = state.lidTarget;
     }
-    
-    if (target != lidPosition) {
+    else if (sign == -1 && target < state.lidTarget)
+    {
+      target = state.lidTarget;
+    }
+
+    if (target != lidPosition)
+    {
       state.lidTimer = now;
       lidServo.write(target);
     }
-  } else if (state.lidState == OPENING) {
+  }
+  else if (state.lidState == OPENING)
+  {
     state.lidState = OPEN;
-  } else if (state.lidState == CLOSING) {
+  }
+  else if (state.lidState == CLOSING)
+  {
     state.lidState = CLOSED;
   }
 
-  if (armPosition != state.armTarget) {
+  if (armPosition != state.armTarget)
+  {
     int sign = (armPosition < state.armTarget) ? 1 : -1;
     int armSpeed;
-    if (state.armState == FAST_TRIGGER || state.armState == FAST_WITHDRAW) {
+    if (state.armState == FAST_TRIGGER || state.armState == FAST_WITHDRAW)
+    {
       armSpeed = ARM_SERVO_SPEED_FAST;
-    } else if (state.armState == SLOW_TRIGGER || state.armState == SLOW_WITHDRAW) {
+    }
+    else if (state.armState == SLOW_TRIGGER || state.armState == SLOW_WITHDRAW)
+    {
       armSpeed = ARM_SERVO_SPEED_SLOW;
     }
-    
+
     int target = armPosition + (timeDiff * sign * armSpeed / 1000); // div by 1000 because LID_SERVO_SPEED in deg per seconds
-    if ((sign == 1 && target > state.armTarget) || 
-        (sign == -1 && target < state.armTarget)) {
+    if ((sign == 1 && target > state.armTarget) ||
+        (sign == -1 && target < state.armTarget))
+    {
       target = state.armTarget;
     }
-    
-    if (target != lidPosition) {
+
+    if (target != lidPosition)
+    {
       state.armTimer = now;
       armServo.write(target);
     }
-  } else if (state.armState == FAST_TRIGGER || state.armState == SLOW_TRIGGER) {
+  }
+  else if (state.armState == FAST_TRIGGER || state.armState == SLOW_TRIGGER)
+  {
     state.armState = TRIGGERED;
-  } else if (state.armState == FAST_WITHDRAW || state.armState == SLOW_WITHDRAW) {
+  }
+  else if (state.armState == FAST_WITHDRAW || state.armState == SLOW_WITHDRAW)
+  {
     state.armState = RETRACTED;
   }
 }
