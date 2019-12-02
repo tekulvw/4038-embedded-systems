@@ -5,7 +5,9 @@
 
 #define SONAR_TRIG 8
 #define SONAR_ECHO 7
-#define SONAR_MAX_DISTANCE 500 // cm
+#define SONAR_MAX_DISTANCE 500            // cm
+#define SONAR_TRIGGER_STOP_DISTANCE 30    // cm
+#define SONAR_TRIGGER_RETRACT_DISTANCE 10 // cm
 
 NewPing sonar(SONAR_TRIG, SONAR_ECHO);
 
@@ -59,9 +61,11 @@ typedef struct BoxState
   bool motionFound;
   bool lastMotionFound;
 
+  ArmAction lastArmState;
   ArmAction armState;
   int armTarget;
   unsigned long armTimer;
+
   LidAction lidState;
   int lidTarget;
   unsigned long lidTimer;
@@ -75,8 +79,10 @@ typedef struct BoxState
     motionFound = false;
     lastMotionFound = false;
 
+    lastArmState = NO_ARM_ACTION;
     armState = FAST_WITHDRAW;
     armTarget = ARM_SERVO_CLOSED;
+
     lidState = CLOSING;
     lidTarget = LID_SERVO_CLOSED;
   }
@@ -102,11 +108,55 @@ typedef struct BoxState
     armTimer = millis();
   }
 
+  void triggerArmSlow()
+  {
+    armState = SLOW_TRIGGER;
+    armTarget = ARM_SERVO_OPEN;
+    armTimer = millis();
+  }
+
+  void triggerArmFast()
+  {
+    if (armState != FAST_TRIGGER)
+    {
+      armState = FAST_TRIGGER;
+      armTarget = ARM_SERVO_OPEN;
+      armTimer = millis();
+    }
+  }
+
   void retractArmFast()
   {
-    armState = FAST_WITHDRAW;
-    armTarget = ARM_SERVO_CLOSED;
-    armTimer = millis();
+    if (armState != FAST_WITHDRAW)
+    {
+      armState = FAST_WITHDRAW;
+      armTarget = ARM_SERVO_CLOSED;
+      armTimer = millis();
+    }
+  }
+
+  void retractArmSlow()
+  {
+    if (armState != SLOW_WITHDRAW)
+    {
+      armState = SLOW_WITHDRAW;
+      armTarget = ARM_SERVO_CLOSED;
+      armTimer = millis();
+    }
+  }
+
+  void stopArm()
+  {
+    if (isArmRetracting() || isArmTriggering())
+    {
+      lastArmState = armState;
+      armState = NO_ARM_ACTION;
+    }
+  }
+
+  bool isLidOpen()
+  {
+    return lidState == OPEN;
   }
 
   bool canOpenLid()
@@ -127,6 +177,71 @@ typedef struct BoxState
   bool needsButtonPush()
   {
     return digitalRead(TOGGLE_BUTTON_PIN) == LOW;
+  }
+
+  bool isArmRetractingFast()
+  {
+    return armState == FAST_WITHDRAW;
+  }
+
+  bool isArmRetractingSlow()
+  {
+    return armState == SLOW_WITHDRAW;
+  }
+
+  bool isArmRetracting()
+  {
+    return isArmRetractingFast() || isArmRetractingSlow();
+  }
+
+  bool isArmRetracted()
+  {
+    return armState == RETRACTED;
+  }
+
+  bool isArmFastTriggering()
+  {
+    return armState == FAST_TRIGGER;
+  }
+
+  bool isArmSlowTriggering()
+  {
+    return armState == SLOW_TRIGGER;
+  }
+
+  bool isArmTriggering()
+  {
+    return isArmSlowTriggering() || isArmFastTriggering();
+  }
+
+  bool isArmTriggered()
+  {
+    return armState == TRIGGERED;
+  }
+
+  bool isArmStopped()
+  {
+    return armState == NO_ARM_ACTION;
+  }
+
+  int getSonarDistance()
+  {
+    return sonarDistance;
+  }
+
+  bool seenMovement()
+  {
+    return motionFound;
+  }
+
+  bool seenMovementRising()
+  {
+    return motionFound && !lastMotionFound;
+  }
+
+  bool seenMovementFalling()
+  {
+    return !motionFound && lastMotionFound;
   }
 };
 
@@ -157,20 +272,56 @@ void loop()
   updateMotion();
   updateServos();
 
-  if (state.needsButtonPush())
+  if (state.needsButtonPush()) // Need to push button
   {
-    if (state.canOpenLid())
+    if (!state.isLidOpen() && state.canOpenLid())
     {
       state.openLid();
     }
+    else if (state.isLidOpen())
+    {
+      if (state.seenMovement())
+      {
+        if (state.getSonarDistance() < SONAR_TRIGGER_STOP_DISTANCE)
+        {
+          state.stopArm();
+        }
+        else if (state.getSonarDistance < SONAR_TRIGGER_RETRACT_DISTANCE)
+        {
+          state.retractArmSlow();
+        }
+        else
+        {
+          state.triggerArmSlow();
+        }
+      }
+      else
+      {
+        state.triggerArmFast();
+      }
+    }
   }
-  else if (state.lidState != CLOSED && state.canCloseLid())
+  else if (!state.isArmRetracted()) // Button has been pushed and arm is still out
+  {
+    if (state.getSonarDistance() > SONAR_TRIGGER_RETRACT_DISTANCE)
+    {
+      if (state.getSonarDistance() < SONAR_TRIGGER_STOP_DISTANCE)
+      {
+        state.retractArmSlow();
+      }
+      else
+      {
+        state.retractArmFast();
+      }
+    }
+    else
+    {
+      state.stopArm()
+    }
+  }
+  else if (state.isArmRetracted() && !state.isLidOpen())
   {
     state.closeLid();
-  }
-  else if (!state.canCloseLid() && !(state.armState == RETRACTED))
-  {
-    state.retractArmFast();
   }
 }
 
