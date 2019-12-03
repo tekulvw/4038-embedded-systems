@@ -31,6 +31,7 @@ Servo lidServo;
 Servo armServo;
 
 #define TOGGLE_BUTTON_PIN 5
+#define BASIC_STAMP_PIN 3
 
 enum ArmAction
 {
@@ -176,7 +177,7 @@ typedef struct BoxState
 
   bool needsButtonPush()
   {
-    return digitalRead(TOGGLE_BUTTON_PIN) == LOW;
+    return digitalRead(TOGGLE_BUTTON_PIN) == HIGH;
   }
 
   bool isArmRetractingFast()
@@ -260,6 +261,7 @@ void setup()
 
   pinMode(MOTION_PIN, INPUT);
   pinMode(TOGGLE_BUTTON_PIN, INPUT_PULLUP);
+  pinMode(BASIC_STAMP_PIN, OUTPUT);
 }
 
 void loop()
@@ -271,6 +273,7 @@ void loop()
   }
   updateMotion();
   updateServos();
+  updateBasicStamp();
 
   if (state.needsButtonPush()) // Need to push button
   {
@@ -420,5 +423,17 @@ void updateServos()
   else if (state.armState == FAST_WITHDRAW || state.armState == SLOW_WITHDRAW)
   {
     state.armState = RETRACTED;
+  }
+}
+
+void updateBasicStamp()
+{
+  if (state.needsButtonPush())
+  {
+    digitalWrite(BASIC_STAMP_PIN, HIGH);
+  }
+  else
+  {
+    digitalWrite(BASIC_STAMP_PIN, LOW);
   }
 }
