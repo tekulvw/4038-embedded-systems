@@ -22,7 +22,7 @@ unsigned long pingTimer;     // Holds the next ping time.
 #define ARM_SERVO_PIN 10
 #define ARM_SERVO_CLOSED 0
 #define ARM_SERVO_OPEN 90
-#define ARM_SERVO_SPEED_FAST 30 //degrees per second
+#define ARM_SERVO_SPEED_FAST 270 //degrees per second
 #define ARM_SERVO_SPEED_SLOW 5  //degrees per second
 
 // WARNING: Max servo speed is approx. 270 deg per second
@@ -90,30 +90,32 @@ typedef struct BoxState
 
   void openLid()
   {
-    lidState = OPENING;
-    lidTarget = LID_SERVO_OPEN;
-    lidTimer = millis();
+    if (lidState != OPENING)
+    {
+      lidState = OPENING;
+      lidTarget = LID_SERVO_OPEN;
+      lidTimer = millis();
+    }
   }
 
   void closeLid()
   {
-    lidState = CLOSING;
-    lidTarget = LID_SERVO_CLOSED;
-    lidTimer = millis();
-  }
-
-  void pushButtonFast()
-  {
-    armState = FAST_TRIGGER;
-    armTarget = ARM_SERVO_OPEN;
-    armTimer = millis();
+    if (lidState != CLOSING)
+    {
+      lidState = CLOSING;
+      lidTarget = LID_SERVO_CLOSED;
+      lidTimer = millis();
+    }
   }
 
   void triggerArmSlow()
   {
-    armState = SLOW_TRIGGER;
-    armTarget = ARM_SERVO_OPEN;
-    armTimer = millis();
+    if (armState != SLOW_TRIGGER)
+    {
+      armState = SLOW_TRIGGER;
+      armTarget = ARM_SERVO_OPEN;
+      armTimer = millis();
+    }
   }
 
   void triggerArmFast()
@@ -158,6 +160,11 @@ typedef struct BoxState
   bool isLidOpen()
   {
     return lidState == OPEN;
+  }
+
+  bool isLidClosed()
+  {
+    return lidState == CLOSED;
   }
 
   bool canOpenLid()
@@ -269,7 +276,7 @@ void loop()
   if (millis() >= pingTimer)
   {
     pingTimer += pingSpeed;
-    sonar.ping_timer(echoCheck);
+    //sonar.ping_timer(echoCheck);
   }
   updateMotion();
   updateServos();
@@ -277,55 +284,71 @@ void loop()
 
   if (state.needsButtonPush()) // Need to push button
   {
+    Serial.println("1");
     if (!state.isLidOpen() && state.canOpenLid())
     {
       state.openLid();
+      Serial.println("2");
     }
     else if (state.isLidOpen())
     {
+      Serial.println("3");
       if (state.seenMovement())
       {
+        Serial.println("4");
         if (state.getSonarDistance() < SONAR_TRIGGER_STOP_DISTANCE)
         {
           state.stopArm();
+          Serial.println("5");
         }
         else if (state.getSonarDistance() < SONAR_TRIGGER_RETRACT_DISTANCE)
         {
           state.retractArmSlow();
+          Serial.println("6");
         }
         else
         {
           state.triggerArmSlow();
+          Serial.println("7");
         }
       }
       else
       {
         state.triggerArmFast();
+        Serial.println("8");
       }
     }
   }
   else if (!state.isArmRetracted()) // Button has been pushed and arm is still out
   {
+    Serial.println("9");
     if (state.getSonarDistance() > SONAR_TRIGGER_RETRACT_DISTANCE)
     {
+      Serial.println("10");
       if (state.getSonarDistance() < SONAR_TRIGGER_STOP_DISTANCE)
       {
+        Serial.println("11");
         state.retractArmSlow();
       }
       else
       {
+        Serial.println("12");
         state.retractArmFast();
       }
     }
     else
     {
+      Serial.println("13");
       state.stopArm();
     }
   }
-  else if (state.isArmRetracted() && !state.isLidOpen())
+  else if (state.isArmRetracted() && !state.isLidClosed())
   {
+    Serial.println("14");
     state.closeLid();
   }
+  Serial.println("here");
+  //delay(500);
 }
 
 void echoCheck()
@@ -359,13 +382,20 @@ void updateServos()
   unsigned lidPosition = lidServo.read();
   unsigned armPosition = armServo.read();
   unsigned long now = millis();
-  int timeDiff = now - state.lidTimer;
+  int lidTimeDiff = now - state.lidTimer;
+  int armTimeDiff = now - state.armTimer;
 
   // Lid Servo Position Calculation
   if (lidPosition != state.lidTarget)
   {
     int sign = (lidPosition < state.lidTarget) ? 1 : -1;
-    int target = lidPosition + (timeDiff * sign * LID_SERVO_SPEED / 1000); // div by 1000 because LID_SERVO_SPEED in deg per seconds
+    int target = lidPosition + (lidTimeDiff * sign * LID_SERVO_SPEED / 1000); // div by 1000 because LID_SERVO_SPEED in deg per seconds
+
+    #ifdef LIDDEBUG
+    Serial.print("Lid Sign: ");
+    Serial.println(sign);
+    #endif
+
     if (sign == 1 && target > state.lidTarget)
     {
       target = state.lidTarget;
@@ -403,17 +433,36 @@ void updateServos()
       armSpeed = ARM_SERVO_SPEED_SLOW;
     }
 
-    int target = armPosition + (timeDiff * sign * armSpeed / 1000); // div by 1000 because LID_SERVO_SPEED in deg per seconds
-    if ((sign == 1 && target > state.armTarget) ||
-        (sign == -1 && target < state.armTarget))
+    #ifdef ARMDEBUG
+    Serial.print("Sign: ");
+    Serial.println(sign);
+    Serial.print("Arm speed: ");
+    Serial.println(armSpeed);
+    #endif
+
+    int armTarget = armPosition + (armTimeDiff * sign * armSpeed / 1000); // div by 1000 because LID_SERVO_SPEED in deg per seconds
+    if (sign == 1 && armTarget > state.armTarget)
     {
-      target = state.armTarget;
+      armTarget = state.armTarget;
+    }
+    else if (sign == -1 && armTarget < state.armTarget)
+    {
+      armTarget = state.armTarget;
     }
 
-    if (target != lidPosition)
+    #ifdef ARMDEBUG
+    Serial.print("Arm position: ");
+    Serial.println(armPosition);
+    Serial.print("Arm target: ");
+    Serial.println(state.armTarget);
+    Serial.print("Next arm target: ");
+    Serial.println(armTarget);
+    #endif
+
+    if (armTarget != armPosition)
     {
       state.armTimer = now;
-      armServo.write(target);
+      armServo.write(armTarget);
     }
   }
   else if (state.armState == FAST_TRIGGER || state.armState == SLOW_TRIGGER)
@@ -424,6 +473,11 @@ void updateServos()
   {
     state.armState = RETRACTED;
   }
+
+  #ifdef ARMDEBUG
+  Serial.print("Arm state: ");
+  Serial.println(state.armState);
+  #endif
 }
 
 void updateBasicStamp()
