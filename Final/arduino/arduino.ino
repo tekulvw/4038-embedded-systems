@@ -15,15 +15,15 @@ unsigned int pingSpeed = 50; // How frequently are we going to send out a ping (
 unsigned long pingTimer;     // Holds the next ping time.
 
 #define LID_SERVO_PIN 9
-#define LID_SERVO_CLOSED 0
+#define LID_SERVO_CLOSED 90
 #define LID_SERVO_OPEN 180
 #define LID_SERVO_SPEED 270 // degrees per second
 
 #define ARM_SERVO_PIN 10
-#define ARM_SERVO_CLOSED 0
-#define ARM_SERVO_OPEN 90
+#define ARM_SERVO_CLOSED 45
+#define ARM_SERVO_OPEN 140
 #define ARM_SERVO_SPEED_FAST 270 //degrees per second
-#define ARM_SERVO_SPEED_SLOW 5  //degrees per second
+#define ARM_SERVO_SPEED_SLOW 50  //degrees per second
 
 // WARNING: Max servo speed is approx. 270 deg per second
 
@@ -31,7 +31,9 @@ Servo lidServo;
 Servo armServo;
 
 #define TOGGLE_BUTTON_PIN 5
-#define BASIC_STAMP_PIN 3
+#define TOGGLE_BUTTON_DEBOUNCE 500
+
+#define BASIC_STAMP_PIN 2
 
 enum ArmAction
 {
@@ -70,6 +72,9 @@ typedef struct BoxState
   LidAction lidState;
   int lidTarget;
   unsigned long lidTimer;
+
+  bool needButtonPrev;
+  unsigned long buttonEdgeTime;
 
   void reset()
   {
@@ -184,7 +189,27 @@ typedef struct BoxState
 
   bool needsButtonPush()
   {
-    return digitalRead(TOGGLE_BUTTON_PIN) == HIGH;
+    bool pinState = digitalRead(TOGGLE_BUTTON_PIN) == HIGH;
+    if (pinState != needButtonPrev)
+    {
+      if (millis() - buttonEdgeTime > TOGGLE_BUTTON_DEBOUNCE) {
+        needButtonPrev = pinState;
+        buttonEdgeTime = millis();
+        return !needButtonPrev;
+      } else {
+        buttonEdgeTime = 0;
+        return pinState;
+      }
+    }
+    else if (millis() - buttonEdgeTime > TOGGLE_BUTTON_DEBOUNCE) {
+      // Still waiting for debounce to end
+      return pinState;
+    }
+    else
+    {
+      // Still waiting for debounce to end
+      return !pinState;
+    }
   }
 
   bool isArmRetractingFast()

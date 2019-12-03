@@ -2,7 +2,7 @@
 ' {$PBASIC 2.5}
 
 PinConfig:
-  PushButton PIN 0
+  PushButton PIN 5
   Potentiometer PIN 1
   Speaker PIN 2
 
@@ -16,15 +16,11 @@ PinConfig:
   DIRH = %11111111
 
 EEPROMData:
-  SongAddress1     DATA    "Reveille:d=4,o=7,b=140:8g6,8c,16e,16c,8g6,8e,",
-                           "8c,16e,16c,8g6,8e,8c,16e,16c,8a6,8c,e,8c,8g6,",
-                           "8c,16e,16c,8g6,8e,8c,16e,16c,8g6,8e,8c,16e,",
-                           "16c,8g6,8e,c,p,8e,8e,8e,8e,g,8e,8c,8e,8c,8e,8c,",
-                           "e,8c,8e,8e,8e,8e,8e,g,8e,8c,8e,8c,8g6,8g6,c."
-  SongAddress2     DATA    "Beethoven5:d=8,o=7,b=125:g,g,g,2d#,p,f,f,f,2d"
-  SongAddress3     DATA    "TwinkleTwinkle:d=4,o=7,b=120:c,c,g,g,a,a,2g,f,",
+
+  SongAddress1     DATA    "TwinkleTwinkle:d=4,o=7,b=120:c,c,g,g,a,a,2g,f,",
                            "f,e,e,d,d,2c,g,g,f,f,e,e,2d,g,g,f,f,e,e,2d,c,c,",
                            "g,g,a,a,2g,f,f,e,e,d,d,1c"
+  SongAddress2     DATA    "Angry:d=4,o=5,b=120:4a"
 
   Done           DATA    ",q,"
 
@@ -37,7 +33,7 @@ EEPROMData:
                          Word 5274, Word 5588, Word 5920, Word 6272,
                          Word 6645
 
-  SongAddresses DATA Word SongAddress1, Word SongAddress2, Word SongAddress3
+  SongAddresses DATA Word SongAddress1, Word SongAddress2
 
 PlayerVarConfig:
   counter        VAR     Word                ' General purpose counter.
@@ -87,10 +83,12 @@ Main:
         CanSwitchSong = 1
       ENDIF
 
-      IF PushButton = 1 AND CanSwitchSong = 1 THEN
-        CanSwitchSong = 0
-        SongIndex = SongIndex + 1
-        SongIndex = SongIndex // 5
+      IF PushButton = 1 AND SongIndex <> 1 THEN
+        SongIndex = 1
+        DEBUG "song idx = ", DEC SongIndex
+        state = 0
+      ELSEIF PushButton = 0 AND SongIndex <> 0 THEN
+        SongIndex = 0
         DEBUG "song idx = ", DEC SongIndex
         state = 0
       ELSE
@@ -222,6 +220,7 @@ GetPotentiometerTempo:
   potTempo = potTempo + (default_b */ 64)
   ' Adjust
   DEBUG "pot tempo: ", DEC potTempo, CR, CR
+  potTempo = default_b
 RETURN
 
 ' -----[ Subroutine - Find Index of Note ]--------------------------------
